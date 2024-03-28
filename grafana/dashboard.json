@@ -1645,8 +1645,7 @@
       {
         "current": {},
         "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "type": "prometheus"
         },
         "definition": "label_values(adguard_running,server)",
         "hide": 0,

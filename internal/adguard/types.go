@@ -43,3 +43,46 @@ type DhcpStatus struct {
 	StaticLeases  []DhcpLease `json:"static_leases"`
 	Leases        []DhcpLease
 }
+
+type query struct {
+	Class string `json:"class"`
+	Host  string `json:"host"`
+	Type  string `json:"type"`
+}
+
+type answer struct {
+	Type  string  `json:"type"`
+	TTL   float64 `json:"ttl"`
+	Value any     `json:"value"`
+}
+
+type dnsHeader struct {
+	Name     string `json:"Name"`
+	Rrtype   int    `json:"Rrtype"`
+	Class    int    `json:"Class"`
+	TTL      int    `json:"Ttl"`
+	Rdlength int    `json:"Rdlength"`
+}
+
+type type65 struct {
+	Hdr   dnsHeader `json:"Hdr"`
+	RData string    `json:"Rdata"`
+}
+
+type logEntry struct {
+	Answer      []answer `json:"answer"`
+	DNSSec      Bool     `json:"answer_dnssec"`
+	Client      string   `json:"client"`
+	ClientProto string   `json:"client_proto"`
+	Elapsed     string   `json:"elapsed_ms"`
+	Question    query    `json:"question"`
+	Reason      string   `json:"reason"`
+	Status      string   `json:"status"`
+	Time        string   `json:"time"`
+	Upstream    string   `json:"upstream"`
+}
+
+type queryLog struct {
+	Log    []logEntry `json:"data"`
+	Oldest string     `json:"oldest"`
+}

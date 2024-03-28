@@ -38,6 +38,7 @@ func collect(ctx context.Context, client *adguard.Client) error {
 	go collectStats(ctx, client)
 	go collectStatus(ctx, client)
 	go collectDhcp(ctx, client)
+	go collectQueryTypeStats(ctx, client)
 
 	return nil
 }
@@ -103,4 +104,17 @@ func collectDhcp(ctx context.Context, client *adguard.Client) {
 	}
 	metrics.DhcpEnabled.WithLabelValues(client.Url()).Set(float64(dhcp.Enabled.Int()))
 	metrics.DhcpLeases.Record(client.Url(), dhcp.Leases)
+}
+
+func collectQueryTypeStats(ctx context.Context, client *adguard.Client) {
+	stats, err := client.GetQueryTypes(ctx)
+	if err != nil {
+		log.Printf("ERROR - could not get query type stats: %v\n", err)
+		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		return
+	}
+
+	for t, v := range stats {
+		metrics.QueryTypes.WithLabelValues(client.Url(), t).Set(float64(v))
+	}
 }

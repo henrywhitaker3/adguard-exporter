@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"strconv"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/config"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Client struct {
@@ -88,6 +90,31 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 
 	out.Leases = slices.Concat(out.DynamicLeases, out.StaticLeases)
 
+	return out, nil
+}
+
+func (c *Client) GetQueryTypes(ctx context.Context) (map[string]int, error) {
+	log := &queryLog{}
+	err := c.do(ctx, http.MethodGet, "/control/querylog?limit=1000&response_status=all", log)
+	if err != nil {
+		return nil, err
+	}
+
+	out := map[string]int{}
+	for _, d := range log.Log {
+		if d.Answer != nil && len(d.Answer) > 0 {
+			for i := range d.Answer {
+				switch v := d.Answer[i].Value.(type) {
+				case string:
+					out[d.Answer[i].Type]++
+				case map[string]any:
+					dns65 := &type65{}
+					mapstructure.Decode(v, dns65)
+					out["TYPE"+strconv.Itoa(dns65.Hdr.Rrtype)]++
+				}
+			}
+		}
+	}
 	return out, nil
 }
 

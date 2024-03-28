@@ -1062,9 +1062,48 @@
           "interval": "",
           "legendFormat": "Filter lists",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(adguard_replaced_safesearch{server=\"$server\"})",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Replaced SafeSearch",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(adguard_replaced_safebrowsing{server=\"$server\"})",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Replaced SafeBrowsing",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(adguard_replaced_parental{server=\"$server\"})",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Replaced Parental",
+          "refId": "D"
         }
       ],
-      "title": "Ads blocked",
+      "title": "Queries Blocked/Replaced",
       "type": "timeseries"
     },
     {
@@ -1518,6 +1557,6 @@
   "timezone": "",
   "title": "AdGuard Home Exporter",
   "uid": "AdGuard-Home-Exporter",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }

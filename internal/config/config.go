@@ -8,6 +8,15 @@ import (
 	"github.com/sethvargo/go-envconfig"
 )
 
+type Global struct {
+	Server  Server
+	Configs []Config
+}
+
+type Server struct {
+	Interval int `env:"INTERVAL, default=30"`
+}
+
 type Config struct {
 	Url      string
 	Username string
@@ -20,11 +29,15 @@ type EnvConfig struct {
 	Passwords []string `env:"ADGUARD_PASSWORDS"`
 }
 
-func FromEnv() ([]Config, error) {
+func FromEnv() (*Global, error) {
 	godotenv.Load()
 
 	env := &EnvConfig{}
 	if err := envconfig.Process(context.Background(), env); err != nil {
+		return nil, err
+	}
+	serv := &Server{}
+	if err := envconfig.Process(context.Background(), serv); err != nil {
 		return nil, err
 	}
 
@@ -41,7 +54,10 @@ func FromEnv() ([]Config, error) {
 		})
 	}
 
-	return configs, nil
+	return &Global{
+		Server:  *serv,
+		Configs: configs,
+	}, nil
 }
 
 func (e *EnvConfig) Validate() error {

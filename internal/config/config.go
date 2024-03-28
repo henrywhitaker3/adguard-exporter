@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/sethvargo/go-envconfig"
@@ -14,7 +15,7 @@ type Global struct {
 }
 
 type Server struct {
-	Interval int `env:"INTERVAL, default=30"`
+	Interval time.Duration `env:"INTERVAL, default=30"`
 }
 
 type Config struct {
@@ -24,7 +25,7 @@ type Config struct {
 }
 
 type EnvConfig struct {
-	Urls      []string `env:"ADGUARD_URLS"`
+	Urls      []string `env:"ADGUARD_SERVERS"`
 	Usernames []string `env:"ADGUARD_USERNAMES"`
 	Passwords []string `env:"ADGUARD_PASSWORDS"`
 }

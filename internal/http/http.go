@@ -15,7 +15,7 @@ func NewHttp() *Http {
 	e := echo.New()
 	e.HideBanner = true
 
-	e.Use(echoprometheus.NewMiddleware(""))
+	e.GET("/metrics", echoprometheus.NewHandler())
 
 	return &Http{
 		e: e,

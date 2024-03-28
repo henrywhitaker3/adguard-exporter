@@ -61,3 +61,7 @@ func (c *Client) GetStats(ctx context.Context) (*Stats, error) {
 
 	return out, nil
 }
+
+func (c *Client) Url() string {
+	return c.conf.Url
+}

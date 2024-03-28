@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,9 +9,12 @@ import (
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
 	"github.com/henrywhitaker3/adguard-exporter/internal/config"
 	"github.com/henrywhitaker3/adguard-exporter/internal/http"
+	"github.com/henrywhitaker3/adguard-exporter/internal/metrics"
+	"github.com/henrywhitaker3/adguard-exporter/internal/worker"
 )
 
 func main() {
+	metrics.Init()
 	global, err := config.FromEnv()
 	if err != nil {
 		panic(err)
@@ -22,18 +23,6 @@ func main() {
 	clients := []*adguard.Client{}
 	for _, conf := range global.Configs {
 		clients = append(clients, adguard.NewClient(conf))
-	}
-
-	for _, client := range clients {
-		out, err := client.GetStats(context.Background())
-		if err != nil {
-			panic(err)
-		}
-		b, err := json.Marshal(out)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(string(b))
 	}
 
 	ctx := context.Background()
@@ -45,6 +34,7 @@ func main() {
 
 	http := http.NewHttp()
 	go http.Serve()
+	go worker.Work(ctx, global.Server.Interval, clients)
 
 	<-sigs
 	if err := http.Stop(ctx); err != nil {

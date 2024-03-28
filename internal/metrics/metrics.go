@@ -1,6 +1,9 @@
 package metrics
 
 import (
+	"sync"
+
+	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -81,17 +84,52 @@ var (
 		Namespace: "adguard",
 		Help:      "Whether dhcp is enabled",
 	}, []string{"server"})
-	DhcpLeases = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:      "dhcp_leases",
-		Namespace: "adguard",
-		Help:      "The number of dhcp leases",
-	}, []string{"server"})
-	DhcpStaticLeases = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:      "dhcp_static_leases",
-		Namespace: "adguard",
-		Help:      "The number of static dhcp leases",
-	}, []string{"server"})
+	DhcpLeasesMetric = prometheus.NewDesc(
+		"adguard_dchp_leases",
+		"The dhcp leases",
+		[]string{"server", "type", "ip", "mac", "hostname"},
+		nil,
+	)
+	DhcpLeases = NewDhcpLeasesServer(DhcpLeasesMetric)
 )
+
+type DhcpLeasesServer struct {
+	mu     *sync.Mutex
+	Desc   *prometheus.Desc
+	leases map[string][]adguard.DhcpLease
+}
+
+func NewDhcpLeasesServer(desc *prometheus.Desc) *DhcpLeasesServer {
+	return &DhcpLeasesServer{
+		mu:     &sync.Mutex{},
+		leases: map[string][]adguard.DhcpLease{},
+		Desc:   desc,
+	}
+}
+
+func (d *DhcpLeasesServer) Record(server string, leases []adguard.DhcpLease) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	d.leases[server] = leases
+}
+
+func (d *DhcpLeasesServer) Collect(ch chan<- prometheus.Metric) {
+	for server, leases := range d.leases {
+		for _, lease := range leases {
+			ch <- prometheus.MustNewConstMetric(
+				d.Desc,
+				prometheus.CounterValue,
+				1,
+				server, lease.Type, lease.IP, lease.Mac, lease.Hostname,
+			)
+		}
+	}
+}
+
+func (d *DhcpLeasesServer) Describe(ch chan<- *prometheus.Desc) {
+	ch <- d.Desc
+}
 
 func Init() {
 	prometheus.MustRegister(ScrapeErrors)
@@ -115,5 +153,4 @@ func Init() {
 	// DHCP
 	prometheus.MustRegister(DhcpEnabled)
 	prometheus.MustRegister(DhcpLeases)
-	prometheus.MustRegister(DhcpStaticLeases)
 }

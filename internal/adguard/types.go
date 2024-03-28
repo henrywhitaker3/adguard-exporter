@@ -34,10 +34,12 @@ type DhcpLease struct {
 	IP       string `json:"ip"`
 	Hostname string `json:"hostname"`
 	Expires  string `json:"expires,omitempty"`
+	Type     string
 }
 
 type DhcpStatus struct {
-	Enabled      Bool        ` json:"enabled"`
-	Leases       []DhcpLease `json:"leases"`
-	StaticLeases []DhcpLease `json:"static_leases"`
+	Enabled       Bool        ` json:"enabled"`
+	DynamicLeases []DhcpLease `json:"leases"`
+	StaticLeases  []DhcpLease `json:"static_leases"`
+	Leases        []DhcpLease
 }

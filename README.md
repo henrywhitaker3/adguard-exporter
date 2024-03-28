@@ -59,5 +59,4 @@ scrape_configs:
 | adguard_top_upstreams                             | The number of repsonses for the top upstream servers              |
 | adguard_top_upstreams_avg_response_time_seconds   | The average response time for each of the top upstream servers    |
 | adguard_dhcp_enabled                              | Whether dhcp is enabled                                           |
-| adguard_dhcp_leases                               | The number of dhcp leases                                         |
-| adguard_dhcp_static_leases                        | The number of static dhcp leases                                  |
+| adguard_dhcp_leases                               | The dhcp leases                                         |

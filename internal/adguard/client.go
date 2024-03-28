@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/config"
 )
@@ -70,7 +71,24 @@ func (c *Client) GetStatus(ctx context.Context) (*Status, error) {
 func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 	out := &DhcpStatus{}
 	err := c.do(ctx, http.MethodGet, "/control/dhcp/status", out)
-	return out, err
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range out.DynamicLeases {
+		l := out.DynamicLeases[i]
+		l.Type = "dynamic"
+		out.DynamicLeases[i] = l
+	}
+	for i := range out.StaticLeases {
+		l := out.StaticLeases[i]
+		l.Type = "static"
+		out.StaticLeases[i] = l
+	}
+
+	out.Leases = slices.Concat(out.DynamicLeases, out.StaticLeases)
+
+	return out, nil
 }
 
 func (c *Client) Url() string {

@@ -101,6 +101,5 @@ func collectDhcp(ctx context.Context, client *adguard.Client) {
 		return
 	}
 	metrics.DhcpEnabled.WithLabelValues(client.Url()).Set(float64(dhcp.Enabled.Int()))
-	metrics.DhcpLeases.WithLabelValues(client.Url()).Set(float64(len(dhcp.Leases)))
-	metrics.DhcpStaticLeases.WithLabelValues(client.Url()).Set(float64(len(dhcp.StaticLeases)))
+	metrics.DhcpLeases.Record(client.Url(), dhcp.Leases)
 }

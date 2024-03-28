@@ -1,0 +1,10 @@
+vendor
+bin
+tmp
+
+.vscode
+report.xml
+debug
+.idea/
+
+.env

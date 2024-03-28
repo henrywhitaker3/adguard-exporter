@@ -22,44 +22,55 @@ func NewClient(conf config.Config) *Client {
 	}
 }
 
-func (c *Client) get(ctx context.Context, path string) (*http.Response, error) {
+func (c *Client) do(ctx context.Context, method string, path string, out any) error {
 	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req := &http.Request{
-		Method: http.MethodGet,
+		Method: method,
 		Header: http.Header{},
 		URL:    url,
 	}
 	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
 	req = req.WithContext(ctx)
 
-	return http.DefaultClient.Do(req)
-}
-
-func (c *Client) GetStats(ctx context.Context) (*Stats, error) {
-	resp, err := c.get(ctx, "/control/stats")
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, err)
+		return fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	out := &Stats{}
 	if err := json.Unmarshal(body, out); err != nil {
-		return nil, err
+		return err
 	}
+	return nil
+}
 
-	return out, nil
+func (c *Client) GetStats(ctx context.Context) (*Stats, error) {
+	out := &Stats{}
+	err := c.do(ctx, http.MethodGet, "/control/stats", out)
+	return out, err
+}
+
+func (c *Client) GetStatus(ctx context.Context) (*Status, error) {
+	out := &Status{}
+	err := c.do(ctx, http.MethodGet, "/control/status", out)
+	return out, err
+}
+
+func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
+	out := &DhcpStatus{}
+	err := c.do(ctx, http.MethodGet, "/control/dhcp/status", out)
+	return out, err
 }
 
 func (c *Client) Url() string {

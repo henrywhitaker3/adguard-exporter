@@ -9,6 +9,10 @@ import (
 	"github.com/henrywhitaker3/adguard-exporter/internal/metrics"
 )
 
+var (
+	firstRun bool = true
+)
+
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
 	log.Printf("Collecting metrics every %s\n", interval)
 	tick := time.NewTicker(interval)
@@ -25,15 +29,52 @@ func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client
 }
 
 func collect(ctx context.Context, client *adguard.Client) error {
+	// Initialise the scrape errors counter with a 0
+	if firstRun {
+		metrics.ScrapeErrors.WithLabelValues(client.Url())
+		firstRun = false
+	}
+
+	go collectStats(ctx, client)
+	go collectStatus(ctx, client)
+	go collectDhcp(ctx, client)
+
+	return nil
+}
+
+func collectStats(ctx context.Context, client *adguard.Client) {
 	stats, err := client.GetStats(ctx)
 	if err != nil {
 		log.Printf("ERROR - could not get stats: %v\n", err)
-		return err
+		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		return
 	}
-
 	metrics.TotalQueries.WithLabelValues(client.Url()).Set(float64(stats.TotalQueries))
 	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
 	metrics.BlockedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafesearchQueries))
+	metrics.BlockedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafebrowsingQueries))
+	metrics.AvgProcessingTime.WithLabelValues(client.Url()).Set(float64(stats.AvgProcessingTime))
+}
 
-	return nil
+func collectStatus(ctx context.Context, client *adguard.Client) {
+	status, err := client.GetStatus(ctx)
+	if err != nil {
+		log.Printf("ERROR - could not get status: %v\n", err)
+		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		return
+	}
+	metrics.Running.WithLabelValues(client.Url(), status.Version).Set(float64(status.Running.Int()))
+	metrics.ProtectionEnabled.WithLabelValues(client.Url()).Set(float64(status.ProtectionEnabled.Int()))
+}
+
+func collectDhcp(ctx context.Context, client *adguard.Client) {
+	dhcp, err := client.GetDhcp(ctx)
+	if err != nil {
+		log.Printf("ERROR - could not get dhcp status: %v\n", err)
+		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		return
+	}
+	metrics.DhcpEnabled.WithLabelValues(client.Url()).Set(float64(dhcp.Enabled.Int()))
+	metrics.DhcpLeases.WithLabelValues(client.Url()).Set(float64(len(dhcp.Leases)))
+	metrics.DhcpStaticLeases.WithLabelValues(client.Url()).Set(float64(len(dhcp.StaticLeases)))
 }

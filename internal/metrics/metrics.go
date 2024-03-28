@@ -47,6 +47,7 @@ var (
 	AvgProcessingTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "avg_processing_time_seconds",
 		Namespace: "adguard",
+		Help:      "The average query processing time in seconds",
 	}, []string{"server"})
 	TopQueriedDomains = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "top_queried_domains",

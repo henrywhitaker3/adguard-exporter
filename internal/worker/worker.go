@@ -10,7 +10,7 @@ import (
 )
 
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
-	log.Printf("Collectin metrics every %s\n", interval)
+	log.Printf("Collecting metrics every %s\n", interval)
 	tick := time.NewTicker(interval)
 	for {
 		select {
@@ -25,8 +25,6 @@ func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client
 }
 
 func collect(ctx context.Context, client *adguard.Client) error {
-	log.Printf("collecting metrics for %s\n", client.Url())
-
 	stats, err := client.GetStats(ctx)
 	if err != nil {
 		log.Printf("ERROR - could not get stats: %v\n", err)
@@ -34,6 +32,8 @@ func collect(ctx context.Context, client *adguard.Client) error {
 	}
 
 	metrics.TotalQueries.WithLabelValues(client.Url()).Set(float64(stats.TotalQueries))
+	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
+	metrics.BlockedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafesearchQueries))
 
 	return nil
 }

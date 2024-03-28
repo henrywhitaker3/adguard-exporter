@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"log"
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
@@ -23,6 +24,7 @@ func NewHttp() *Http {
 }
 
 func (h *Http) Serve() error {
+	log.Println("Starting http server on port 9618")
 	return h.e.Start(":9618")
 }
 

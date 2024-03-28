@@ -2,8 +2,6 @@ module github.com/henrywhitaker3/adguard-exporter
 
 go 1.22
 
-toolchain go1.22.1
-
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-contrib v0.16.0

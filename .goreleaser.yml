@@ -1,0 +1,23 @@
+project_name: adguard-exporter
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: main.go
+archives:
+  - format: tar.gz
+checksum:
+  name_template: 'checksums.txt'
+dockers:
+  - dockerfile: Dockerfile
+    image_templates:
+      - ghcr.io/henrywhitaker3/adguard-exporter:{{ .Tag }}
+      - ghcr.io/henrywhitaker3/adguard-exporter:latest

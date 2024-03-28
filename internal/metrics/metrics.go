@@ -48,6 +48,31 @@ var (
 		Name:      "avg_processing_time_seconds",
 		Namespace: "adguard",
 	}, []string{"server"})
+	TopQueriedDomains = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "top_queried_domains",
+		Namespace: "adguard",
+		Help:      "The number of queries for the top domains",
+	}, []string{"server", "domain"})
+	TopBlockedDomains = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "top_blocked_domains",
+		Namespace: "adguard",
+		Help:      "The number of blocked queries for the top domains",
+	}, []string{"server", "domain"})
+	TopClients = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "top_clients",
+		Namespace: "adguard",
+		Help:      "The number of queries for the top clients",
+	}, []string{"server", "client"})
+	TopUpstreams = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "top_upstreams",
+		Namespace: "adguard",
+		Help:      "The number of repsonses for the top upstream servers",
+	}, []string{"server", "upstream"})
+	TopUpstreamsAvgTimes = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "top_upstreams_avg_response_time_seconds",
+		Namespace: "adguard",
+		Help:      "The average response time for each of the top upstream servers",
+	}, []string{"server", "upstream"})
 
 	// DHCP
 	DhcpEnabled = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -76,6 +101,11 @@ func Init() {
 	prometheus.MustRegister(BlockedSafesearch)
 	prometheus.MustRegister(BlockedSafebrowsing)
 	prometheus.MustRegister(AvgProcessingTime)
+	prometheus.MustRegister(TopBlockedDomains)
+	prometheus.MustRegister(TopClients)
+	prometheus.MustRegister(TopQueriedDomains)
+	prometheus.MustRegister(TopUpstreams)
+	prometheus.MustRegister(TopUpstreamsAvgTimes)
 
 	// Status
 	prometheus.MustRegister(Running)

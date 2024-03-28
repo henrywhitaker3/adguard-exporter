@@ -54,6 +54,32 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 	metrics.BlockedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafesearchQueries))
 	metrics.BlockedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafebrowsingQueries))
 	metrics.AvgProcessingTime.WithLabelValues(client.Url()).Set(float64(stats.AvgProcessingTime))
+
+	for _, c := range stats.TopClients {
+		for key, val := range c {
+			metrics.TopClients.WithLabelValues(client.Url(), key).Set(float64(val))
+		}
+	}
+	for _, c := range stats.TopUpstreamsResponses {
+		for key, val := range c {
+			metrics.TopUpstreams.WithLabelValues(client.Url(), key).Set(float64(val))
+		}
+	}
+	for _, c := range stats.TopQueriedDomains {
+		for key, val := range c {
+			metrics.TopQueriedDomains.WithLabelValues(client.Url(), key).Set(float64(val))
+		}
+	}
+	for _, c := range stats.TopBlockedDomains {
+		for key, val := range c {
+			metrics.TopBlockedDomains.WithLabelValues(client.Url(), key).Set(float64(val))
+		}
+	}
+	for _, c := range stats.TopUpstreamsAvgTimes {
+		for key, val := range c {
+			metrics.TopUpstreamsAvgTimes.WithLabelValues(client.Url(), key).Set(float64(val))
+		}
+	}
 }
 
 func collectStatus(ctx context.Context, client *adguard.Client) {

@@ -10,17 +10,17 @@ func (b Bool) Int() int {
 }
 
 type Stats struct {
-	TotalQueries               int                  `json:"num_dns_queries"`
-	BlockedFilteredQueries     int                  `json:"num_blocked_filtering"`
-	BlockedSafebrowsingQueries int                  `json:"num_blocked_safebrowsing"`
-	BlockedSafesearchQueries   int                  `json:"num_blocked_safesearch"`
-	BlockedParentalQueries     int                  `json:"num_blocked_parental"`
-	AvgProcessingTime          float32              `json:"avg_processing_time"`
-	TopQueriedDomains          []map[string]int     `json:"top_queried_domains"`
-	TopBlockedDomains          []map[string]int     `json:"top_blocked_domains"`
-	TopClients                 []map[string]int     `json:"top_clients"`
-	TopUpstreamsResponses      []map[string]int     `json:"top_upstreams_responses"`
-	TopUpstreamsAvgTimes       []map[string]float32 `json:"top_upstreams_avg_time"`
+	TotalQueries                int                  `json:"num_dns_queries"`
+	BlockedFilteredQueries      int                  `json:"num_blocked_filtering"`
+	ReplacedSafebrowsingQueries int                  `json:"num_replaced_safebrowsing"`
+	ReplacedSafesearchQueries   int                  `json:"num_replaced_safesearch"`
+	ReplacedParentalQueries     int                  `json:"num_replaced_parental"`
+	AvgProcessingTime           float32              `json:"avg_processing_time"`
+	TopQueriedDomains           []map[string]int     `json:"top_queried_domains"`
+	TopBlockedDomains           []map[string]int     `json:"top_blocked_domains"`
+	TopClients                  []map[string]int     `json:"top_clients"`
+	TopUpstreamsResponses       []map[string]int     `json:"top_upstreams_responses"`
+	TopUpstreamsAvgTimes        []map[string]float32 `json:"top_upstreams_avg_time"`
 }
 
 type Status struct {

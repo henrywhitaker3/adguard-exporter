@@ -33,19 +33,24 @@ var (
 		Help:      "Total queries processed in the last 24 hours",
 	}, []string{"server"})
 	BlockedFiltered = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:      "blocked_filtered",
+		Name:      "queries_blocked",
 		Namespace: "adguard",
 		Help:      "Total queries that have been blocked from filter lists",
 	}, []string{"server"})
-	BlockedSafesearch = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:      "blocked_safesearch",
+	ReplacedSafesearch = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "replaced_safesearch",
 		Namespace: "adguard",
-		Help:      "Total queries that have been blocked due to safesearch",
+		Help:      "Total queries that have been replaced due to safesearch",
 	}, []string{"server"})
-	BlockedSafebrowsing = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name:      "blocked_safebrowsing",
+	ReplacedSafebrowsing = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "replaced_safebrowsing",
 		Namespace: "adguard",
-		Help:      "Total queries that have been blocked due to safebrowsing",
+		Help:      "Total queries that have been replaced due to safebrowsing",
+	}, []string{"server"})
+	ReplcaedParental = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name:      "replaced_parental",
+		Namespace: "adguard",
+		Help:      "Total queries that have been replaced due to parental",
 	}, []string{"server"})
 	AvgProcessingTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "avg_processing_time_seconds",
@@ -137,8 +142,9 @@ func Init() {
 	// Stats
 	prometheus.MustRegister(TotalQueries)
 	prometheus.MustRegister(BlockedFiltered)
-	prometheus.MustRegister(BlockedSafesearch)
-	prometheus.MustRegister(BlockedSafebrowsing)
+	prometheus.MustRegister(ReplacedSafesearch)
+	prometheus.MustRegister(ReplacedSafebrowsing)
+	prometheus.MustRegister(ReplcaedParental)
 	prometheus.MustRegister(AvgProcessingTime)
 	prometheus.MustRegister(TopBlockedDomains)
 	prometheus.MustRegister(TopClients)

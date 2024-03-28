@@ -51,8 +51,9 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 	}
 	metrics.TotalQueries.WithLabelValues(client.Url()).Set(float64(stats.TotalQueries))
 	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
-	metrics.BlockedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafesearchQueries))
-	metrics.BlockedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.BlockedSafebrowsingQueries))
+	metrics.ReplacedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafesearchQueries))
+	metrics.ReplacedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafebrowsingQueries))
+	metrics.ReplcaedParental.WithLabelValues(client.Url()).Set(float64(stats.ReplacedParentalQueries))
 	metrics.AvgProcessingTime.WithLabelValues(client.Url()).Set(float64(stats.AvgProcessingTime))
 
 	for _, c := range stats.TopClients {

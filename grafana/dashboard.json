@@ -759,7 +759,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -790,9 +790,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(adguard_queries{server=\"$server\"})",
+          "expr": "rate(adguard_queries[1m])",
           "interval": "",
-          "legendFormat": "{{ job }}",
+          "legendFormat": "{{server}}",
           "range": true,
           "refId": "A"
         }
@@ -1114,7 +1114,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -1145,10 +1145,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(adguard_queries_blocked{server=\"$server\"})",
+          "expr": "rate(adguard_queries_blocked[1m])",
           "instant": false,
           "interval": "",
-          "legendFormat": "Filter lists",
+          "legendFormat": "Blocked {{server}}",
           "refId": "A"
         },
         {
@@ -1157,11 +1157,11 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(adguard_replaced_safesearch{server=\"$server\"})",
+          "expr": "rate(adguard_replaced_safesearch[1m])",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "Replaced SafeSearch",
+          "legendFormat": "Replaced SafeSearch {{server}}",
           "refId": "B"
         },
         {
@@ -1170,7 +1170,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(adguard_replaced_safebrowsing{server=\"$server\"})",
+          "expr": "rate(adguard_replaced_safebrowsing[1m])",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1187,7 +1187,7 @@
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "Replaced Parental",
+          "legendFormat": "Replaced Parental {{server}}",
           "refId": "D"
         }
       ],
@@ -1344,7 +1344,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -1374,14 +1374,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(adguard_queries_blocked{server=\"$server\"} / adguard_queries{server=\"$server\"}) * 100",
+          "expr": "rate(adguard_top_clients[1m])",
           "instant": false,
-          "legendFormat": "Blocked",
+          "legendFormat": "{{client}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "% Blocked",
+      "title": "Client Queries",
       "type": "timeseries"
     },
     {
@@ -1588,7 +1588,11 @@
   "templating": {
     "list": [
       {
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "http://10.0.0.2",
+          "value": "http://10.0.0.2"
+        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
@@ -1645,6 +1649,6 @@
   "timezone": "",
   "title": "AdGuard Home Exporter",
   "uid": "AdGuard-Home-Exporter",
-  "version": 6,
+  "version": 1,
   "weekStart": ""
 }

@@ -1376,7 +1376,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(adguard_top_clients[1m])",
+          "expr": "sum by (client) (rate(adguard_top_clients[1m]))",
           "instant": false,
           "legendFormat": "{{client}}",
           "range": true,
@@ -1619,7 +1619,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {

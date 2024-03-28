@@ -85,7 +85,7 @@ var (
 		Help:      "Whether dhcp is enabled",
 	}, []string{"server"})
 	DhcpLeasesMetric = prometheus.NewDesc(
-		"adguard_dchp_leases",
+		"adguard_dhcp_leases",
 		"The dhcp leases",
 		[]string{"server", "type", "ip", "mac", "hostname"},
 		nil,

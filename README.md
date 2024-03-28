@@ -2,6 +2,8 @@
 
 This is a Prometheus exporter for [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome).
 
+![Dashboard](grafana/dashboard.png)
+
 ## Installation
 
 ### Using Docker

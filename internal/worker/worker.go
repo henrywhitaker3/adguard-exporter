@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"log"
+	"slices"
 	"time"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	firstRun bool = true
+	initialised = []string{}
 )
 
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
@@ -30,9 +31,9 @@ func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client
 
 func collect(ctx context.Context, client *adguard.Client) error {
 	// Initialise the scrape errors counter with a 0
-	if firstRun {
+	if !slices.Contains(initialised, client.Url()) {
 		metrics.ScrapeErrors.WithLabelValues(client.Url())
-		firstRun = false
+		initialised = append(initialised, client.Url())
 	}
 
 	go collectStats(ctx, client)

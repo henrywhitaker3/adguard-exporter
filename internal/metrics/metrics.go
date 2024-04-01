@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"sync"
+	"time"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
 	"github.com/prometheus/client_golang/prometheus"
@@ -97,7 +98,7 @@ var (
 	DhcpLeasesMetric = prometheus.NewDesc(
 		"adguard_dhcp_leases",
 		"The dhcp leases",
-		[]string{"server", "type", "ip", "mac", "hostname"},
+		[]string{"server", "type", "ip", "mac", "hostname", "expires_at"},
 		nil,
 	)
 	DhcpLeases = NewDhcpLeasesServer(DhcpLeasesMetric)
@@ -127,11 +128,15 @@ func (d *DhcpLeasesServer) Record(server string, leases []adguard.DhcpLease) {
 func (d *DhcpLeasesServer) Collect(ch chan<- prometheus.Metric) {
 	for server, leases := range d.leases {
 		for _, lease := range leases {
+			expires := ""
+			if lease.Expires != nil {
+				expires = lease.Expires.Format(time.RFC3339)
+			}
 			ch <- prometheus.MustNewConstMetric(
 				d.Desc,
 				prometheus.CounterValue,
 				1,
-				server, lease.Type, lease.IP, lease.Mac, lease.Hostname,
+				server, lease.Type, lease.IP, lease.Mac, lease.Hostname, expires,
 			)
 		}
 	}

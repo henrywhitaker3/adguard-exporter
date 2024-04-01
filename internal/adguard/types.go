@@ -1,5 +1,7 @@
 package adguard
 
+import "time"
+
 type Bool bool
 
 func (b Bool) Int() int {
@@ -30,10 +32,10 @@ type Status struct {
 }
 
 type DhcpLease struct {
-	Mac      string `json:"mac"`
-	IP       string `json:"ip"`
-	Hostname string `json:"hostname"`
-	Expires  string `json:"expires,omitempty"`
+	Mac      string     `json:"mac"`
+	IP       string     `json:"ip"`
+	Hostname string     `json:"hostname"`
+	Expires  *time.Time `json:"expires,omitempty"`
 	Type     string
 }
 

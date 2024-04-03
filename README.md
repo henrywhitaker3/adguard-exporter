@@ -12,7 +12,7 @@ You can run it using the following example and pass configuration environment va
 
 ```
 $ docker run \
-  -e 'ADGUARD_SERVERS=192.168.1.2' \
+  -e 'ADGUARD_SERVERS=http://192.168.1.2' \
   -e 'ADGUARD_USERNAMES=demo' \
   -e 'ADGUARD_PASSWORDS=mypassword' \
   -e 'INTERVAL=15s' \ # Optional, defaults to 30s
@@ -25,12 +25,21 @@ To do so, you can specify a list of servers, usernames and passwords by separati
 
 ```
 $ docker run \
-  -e 'ADGUARD_SERVERS=192.168.1.2,192.168.1.3,192.168.1.4"' \
+  -e 'ADGUARD_SERVERS=http://192.168.1.2,http://192.168.1.3,http://192.168.1.4"' \
   -e "ADGUARD_USERNAMES=$USERNAME1,$USERNAME2,$USERNAME3" \
   -e "ADGUARD_PASSWORDS=$PASSWORD1,$PASSWORD2,$PASSWORD3" \
   -p 9618:9618 \
   ghcr.io/henrywhitaker3/adguard-exporter:latest
 ```
+
+### Env Vars
+
+| Variable | Description | Required | Default |
+| --- | --- | --- | --- |
+| `ADGUARD_SERVERS` | The servers you want the exporter to scrape. Must include the scheme `http(s)` and port if non-standard. | `True` | |
+| `ADGUARD_USERNAMES` | The username to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. | `True` | |
+| `ADGUARD_PASSWORDS` | The password to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. | `True` | |
+| `INTERVAL` | The interval that the exporter scrapes metrics from the server | `False` | `30s` |
 
 ## Usage
 
@@ -41,6 +50,16 @@ scrape_configs:
   - job_name: 'adguard'
     static_configs:
       - targets: ['localhost:9618']
+```
+
+If you want to strip the scheme and port out of the `server` label in the metrics, you can add a relabeling:
+
+```yaml
+- action: replace
+  sourceLabels: ["server"]
+  regex: http(|s):\/\/([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*
+  replacement: $2
+  targetLabel: server
 ```
 
 ## Available Prometheus metrics
@@ -61,4 +80,4 @@ scrape_configs:
 | adguard_top_upstreams                             | The number of repsonses for the top upstream servers              |
 | adguard_top_upstreams_avg_response_time_seconds   | The average response time for each of the top upstream servers    |
 | adguard_dhcp_enabled                              | Whether dhcp is enabled                                           |
-| adguard_dhcp_leases                               | The dhcp leases                                         |
+| adguard_dhcp_leases                               | The dhcp leases                                                   |

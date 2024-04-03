@@ -70,6 +70,7 @@ If you want to strip the scheme and port out of the `server` label in the metric
 | adguard_protection_enabled                        | Whether DNS filtering is enabled                                  |
 | adguard_running                                   | Whether adguard is running or not                                 |
 | adguard_queries                                   | Total queries processed in the last 24 hours                      |
+| adguard_query_types                               | The number of DNS queries by adguard_query_types                  |
 | adguard_blocked_filtered                          | Total queries that have been blocked from filter lists            |
 | adguard_blocked_safesearch                        | Total queries that have been blocked due to safesearch            |
 | adguard_blocked_safebrowsing                      | Total queries that have been blocked due to safebrowsing          |

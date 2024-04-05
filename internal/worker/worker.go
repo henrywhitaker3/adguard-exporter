@@ -12,6 +12,7 @@ import (
 
 var (
 	initialised = []string{}
+	versions    = map[string]string{}
 )
 
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
@@ -92,6 +93,16 @@ func collectStatus(ctx context.Context, client *adguard.Client) {
 		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
 		return
 	}
+	// Persist the running version the first time
+	if _, ok := versions[client.Url()]; !ok {
+		versions[client.Url()] = status.Version
+	}
+
+	// Check if the adguard version has changed
+	if versions[client.Url()] != status.Version {
+		metrics.Running.Reset()
+	}
+
 	metrics.Running.WithLabelValues(client.Url(), status.Version).Set(float64(status.Running.Int()))
 	metrics.ProtectionEnabled.WithLabelValues(client.Url()).Set(float64(status.ProtectionEnabled.Int()))
 }

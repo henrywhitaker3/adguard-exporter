@@ -58,6 +58,11 @@ var (
 		Namespace: "adguard",
 		Help:      "The average query processing time in seconds",
 	}, []string{"server"})
+	ProcessingTimeBucket = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name:      "processing_time_milliseconds",
+		Namespace: "adguard",
+		Help:      "The processing time of queries",
+	}, []string{"server", "client", "upstream"})
 	TopQueriedDomains = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "top_queried_domains",
 		Namespace: "adguard",
@@ -162,6 +167,7 @@ func Init() {
 	prometheus.MustRegister(TopUpstreams)
 	prometheus.MustRegister(TopUpstreamsAvgTimes)
 	prometheus.MustRegister(QueryTypes)
+	prometheus.MustRegister(ProcessingTimeBucket)
 
 	// Status
 	prometheus.MustRegister(Running)

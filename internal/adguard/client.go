@@ -6,10 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/config"
 	"github.com/mitchellh/mapstructure"
@@ -93,13 +95,25 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 	return out, nil
 }
 
-func (c *Client) GetQueryTypes(ctx context.Context) (map[string]int, error) {
+func (c *Client) GetQueryLog(ctx context.Context) (map[string]int, []QueryTime, error) {
 	log := &queryLog{}
 	err := c.do(ctx, http.MethodGet, "/control/querylog?limit=1000&response_status=all", log)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	types, err := c.getQueryTypes(log)
+	if err != nil {
+		return nil, nil, err
+	}
+	times, err := c.getQueryTimes(log)
+	if err != nil {
+		return nil, nil, err
+	}
+	return types, times, nil
+}
+
+func (c *Client) getQueryTypes(log *queryLog) (map[string]int, error) {
 	out := map[string]int{}
 	for _, d := range log.Log {
 		if d.Answer != nil && len(d.Answer) > 0 {
@@ -114,6 +128,23 @@ func (c *Client) GetQueryTypes(ctx context.Context) (map[string]int, error) {
 				}
 			}
 		}
+	}
+	return out, nil
+}
+
+func (c *Client) getQueryTimes(l *queryLog) ([]QueryTime, error) {
+	out := []QueryTime{}
+	for _, q := range l.Log {
+		ms, err := strconv.ParseFloat(q.Elapsed, 32)
+		if err != nil {
+			log.Printf("ERROR - could not parse query elapsed time %v as float\n", q.Elapsed)
+			continue
+		}
+		out = append(out, QueryTime{
+			Elapsed:  time.Millisecond * time.Duration(ms),
+			Client:   q.Client,
+			Upstream: q.Upstream,
+		})
 	}
 	return out, nil
 }

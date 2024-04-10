@@ -48,7 +48,7 @@ type DhcpStatus struct {
 
 type query struct {
 	Class string `json:"class"`
-	Host  string `json:"host"`
+	Host  string `json:"name"`
 	Type  string `json:"type"`
 }
 
@@ -76,12 +76,18 @@ type logEntry struct {
 	DNSSec      Bool     `json:"answer_dnssec"`
 	Client      string   `json:"client"`
 	ClientProto string   `json:"client_proto"`
-	Elapsed     string   `json:"elapsed_ms"`
+	Elapsed     string   `json:"elapsedMs"`
 	Question    query    `json:"question"`
 	Reason      string   `json:"reason"`
 	Status      string   `json:"status"`
 	Time        string   `json:"time"`
 	Upstream    string   `json:"upstream"`
+}
+
+type QueryTime struct {
+	Elapsed  time.Duration
+	Client   string
+	Upstream string
 }
 
 type queryLog struct {

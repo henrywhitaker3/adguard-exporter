@@ -75,6 +75,7 @@ If you want to strip the scheme and port out of the `server` label in the metric
 | adguard_blocked_safesearch                        | Total queries that have been blocked due to safesearch            |
 | adguard_blocked_safebrowsing                      | Total queries that have been blocked due to safebrowsing          |
 | adguard_avg_processing_time_seconds               | The average query processing time in seconds                      |
+| adguard_avg_processing_time_milliseconds_bucket   | The processing time of queries                                    |
 | adguard_top_queried_domains                       | The number of queries for the top domains                         |
 | adguard_top_blocked_domains                       | The number of blocked queries for the top domains                 |
 | adguard_top_clients                               | The number of queries for the top clients                         |

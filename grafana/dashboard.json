@@ -68,7 +68,7 @@
   "description": "This is a AdGuard Home dashboard when using the https://github.com/henrywhitaker3/adguard-exporter Prometheus exporter",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 20799,
+  "gnetId": 10176,
   "graphTooltip": 0,
   "id": null,
   "links": [],
@@ -454,7 +454,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -490,7 +490,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(adguard_processing_time_milliseconds_sum{server=\"$server\"}[$__rate_interval]) / rate(adguard_processing_time_milliseconds_count{server=\"$server\"}[$__rate_interval]))",
+          "expr": "adguard_avg_processing_time_seconds{server=\"$server\"}",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -830,7 +830,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 3,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -868,7 +868,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -899,7 +899,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum by (upstream) (rate(adguard_processing_time_milliseconds_sum[1m]) / rate(adguard_processing_time_milliseconds_count[1m]))",
+          "expr": "adguard_top_upstreams_avg_response_time_seconds{server=\"$server\"}",
           "interval": "",
           "legendFormat": "{{upstream}}",
           "range": true,

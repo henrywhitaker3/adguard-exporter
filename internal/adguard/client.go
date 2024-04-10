@@ -135,6 +135,9 @@ func (c *Client) getQueryTypes(log *queryLog) (map[string]int, error) {
 func (c *Client) getQueryTimes(l *queryLog) ([]QueryTime, error) {
 	out := []QueryTime{}
 	for _, q := range l.Log {
+		if q.Upstream == "" {
+			q.Upstream = "self"
+		}
 		ms, err := strconv.ParseFloat(q.Elapsed, 32)
 		if err != nil {
 			log.Printf("ERROR - could not parse query elapsed time %v as float\n", q.Elapsed)

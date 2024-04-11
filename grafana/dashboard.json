@@ -68,7 +68,7 @@
   "description": "This is a AdGuard Home dashboard when using the https://github.com/henrywhitaker3/adguard-exporter Prometheus exporter",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 10176,
+  "gnetId": 20799,
   "graphTooltip": 0,
   "id": null,
   "links": [],
@@ -454,7 +454,7 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -490,7 +490,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "adguard_avg_processing_time_seconds{server=\"$server\"}",
+          "expr": "sum(rate(adguard_processing_time_milliseconds_sum{server=\"$server\"}[$__rate_interval])) / sum(rate(adguard_processing_time_milliseconds_count{server=\"$server\"}[$__rate_interval]))",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -732,7 +732,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(adguard_queries[1m])",
+          "expr": "rate(adguard_queries[$__rate_interval])",
           "interval": "",
           "legendFormat": "{{server}}",
           "range": true,
@@ -868,7 +868,7 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -899,9 +899,9 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "adguard_top_upstreams_avg_response_time_seconds{server=\"$server\"}",
+          "expr": "sum by (upstream) (rate(adguard_processing_time_milliseconds_sum[5m])) / sum by (upstream) (rate(adguard_processing_time_milliseconds_count[5m]))",
           "interval": "",
-          "legendFormat": "{{upstream}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
@@ -996,7 +996,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(adguard_queries_blocked[1m])",
+          "expr": "rate(adguard_queries_blocked[$__rate_interval])",
           "instant": false,
           "interval": "",
           "legendFormat": "Blocked {{server}}",
@@ -1008,7 +1008,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(adguard_replaced_safesearch[1m])",
+          "expr": "rate(adguard_replaced_safesearch[$__rate_interval])",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1131,7 +1131,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum by (client) (rate(adguard_top_clients[1m]))",
+          "expr": "sum by (client) (rate(adguard_top_clients[$__rate_interval]))",
           "instant": false,
           "legendFormat": "{{client}}",
           "range": true,
@@ -1482,8 +1482,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1598,8 +1597,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1700,7 +1698,7 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -1733,6 +1731,6 @@
   "timezone": "",
   "title": "AdGuard Home Exporter",
   "uid": "AdGuard-Home-Exporter",
-  "version": 1,
+  "version": 5,
   "weekStart": ""
 }

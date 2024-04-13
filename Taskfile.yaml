@@ -1,0 +1,24 @@
+version: "3"
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task -l
+
+  run:
+    desc: Run the exporter
+    vars:
+      DEBUG: '{{ .DEBUG | default "false" }}'
+    cmds:
+      - DEBUG={{ .DEBUG }} go run main.go
+
+  profile:memory:
+    desc: Get pprof of the heap
+    cmds:
+      - go tool pprof http://127.0.0.1:9618/debug/pprof/heap {{ .CLI_ARGS }}
+
+  profile:memory:png:
+    desc: Export the current heap profile as a png
+    cmds:
+      - go tool pprof -png http://127.0.0.1:9618/debug/pprof/heap > out.png

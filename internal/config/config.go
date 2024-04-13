@@ -16,6 +16,7 @@ type Global struct {
 
 type Server struct {
 	Interval time.Duration `env:"INTERVAL, default=30s"`
+	Debug    bool          `env:"DEBUG, default=false"`
 }
 
 type Config struct {

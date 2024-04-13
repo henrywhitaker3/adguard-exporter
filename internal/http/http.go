@@ -3,6 +3,8 @@ package http
 import (
 	"context"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
@@ -12,11 +14,14 @@ type Http struct {
 	e *echo.Echo
 }
 
-func NewHttp() *Http {
+func NewHttp(debug bool) *Http {
 	e := echo.New()
 	e.HideBanner = true
 
 	e.GET("/metrics", echoprometheus.NewHandler())
+	if debug {
+		e.GET("/debug/*", echo.WrapHandler(http.DefaultServeMux))
+	}
 
 	return &Http{
 		e: e,

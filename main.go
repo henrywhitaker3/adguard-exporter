@@ -32,7 +32,7 @@ func main() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	http := http.NewHttp()
+	http := http.NewHttp(global.Server.Debug)
 	go http.Serve()
 	go worker.Work(ctx, global.Server.Interval, clients)
 

@@ -40,7 +40,7 @@ dockers:
       - "--platform=linux/arm/v6"
     dockerfile: Dockerfile
     image_templates:
-      - ghcr.io/henrywhitaker3/adguard-exporter:{{ .Tag }}-armv7
+      - ghcr.io/henrywhitaker3/adguard-exporter:{{ .Tag }}-armv6
       - ghcr.io/henrywhitaker3/adguard-exporter:latest-armv6
   - goos: linux
     goarch: arm

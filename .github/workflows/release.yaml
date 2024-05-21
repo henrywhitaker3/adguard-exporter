@@ -20,6 +20,9 @@ jobs:
         with:
           go-version: '^1.22'
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - run: go mod tidy
       - run: go test ./...
 

@@ -132,6 +132,6 @@ func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
 	for _, t := range times {
 		metrics.ProcessingTimeBucket.
 			WithLabelValues(client.Url(), t.Client, t.Upstream).
-			Observe(float64(t.Elapsed / time.Millisecond))
+			Observe(float64(t.ElapsedSeconds.Seconds()))
 	}
 }

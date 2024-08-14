@@ -92,7 +92,7 @@ var (
 		Name:      "query_types",
 		Namespace: "adguard",
 		Help:      "The number of queries for a specific type",
-	}, []string{"server", "type"})
+	}, []string{"server", "type", "client"})
 
 	// DHCP
 	DhcpEnabled = prometheus.NewGaugeVec(prometheus.GaugeOpts{

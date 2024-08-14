@@ -95,7 +95,7 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 	return out, nil
 }
 
-func (c *Client) GetQueryLog(ctx context.Context) (map[string]int, []QueryTime, error) {
+func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, error) {
 	log := &queryLog{}
 	err := c.do(ctx, http.MethodGet, "/control/querylog?limit=1000&response_status=all", log)
 	if err != nil {
@@ -113,18 +113,21 @@ func (c *Client) GetQueryLog(ctx context.Context) (map[string]int, []QueryTime, 
 	return types, times, nil
 }
 
-func (c *Client) getQueryTypes(log *queryLog) (map[string]int, error) {
-	out := map[string]int{}
+func (c *Client) getQueryTypes(log *queryLog) (map[string]map[string]int, error) {
+	out := map[string]map[string]int{}
 	for _, d := range log.Log {
 		if d.Answer != nil && len(d.Answer) > 0 {
+			if _, ok := out[d.Client]; !ok {
+				out[d.Client] = map[string]int{}
+			}
 			for i := range d.Answer {
 				switch v := d.Answer[i].Value.(type) {
 				case string:
-					out[d.Answer[i].Type]++
+					out[d.Client][d.Answer[i].Type]++
 				case map[string]any:
 					dns65 := &type65{}
 					mapstructure.Decode(v, dns65)
-					out["TYPE"+strconv.Itoa(dns65.Hdr.Rrtype)]++
+					out[d.Client]["TYPE"+strconv.Itoa(dns65.Hdr.Rrtype)]++
 				}
 			}
 		}

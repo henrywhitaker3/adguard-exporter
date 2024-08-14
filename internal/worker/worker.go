@@ -126,9 +126,12 @@ func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
 		return
 	}
 
-	for t, v := range stats {
-		metrics.QueryTypes.WithLabelValues(client.Url(), t).Set(float64(v))
+	for c, v := range stats {
+		for t, v := range v {
+			metrics.QueryTypes.WithLabelValues(client.Url(), t, c).Set(float64(v))
+		}
 	}
+
 	for _, t := range times {
 		metrics.ProcessingTimeBucket.
 			WithLabelValues(client.Url(), t.Client, t.Upstream).

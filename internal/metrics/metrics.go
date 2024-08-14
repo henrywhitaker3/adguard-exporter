@@ -48,7 +48,7 @@ var (
 		Namespace: "adguard",
 		Help:      "Total queries that have been replaced due to safebrowsing",
 	}, []string{"server"})
-	ReplcaedParental = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	ReplacedParental = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "replaced_parental",
 		Namespace: "adguard",
 		Help:      "Total queries that have been replaced due to parental",
@@ -159,7 +159,7 @@ func Init() {
 	prometheus.MustRegister(BlockedFiltered)
 	prometheus.MustRegister(ReplacedSafesearch)
 	prometheus.MustRegister(ReplacedSafebrowsing)
-	prometheus.MustRegister(ReplcaedParental)
+	prometheus.MustRegister(ReplacedParental)
 	prometheus.MustRegister(AvgProcessingTime)
 	prometheus.MustRegister(TopBlockedDomains)
 	prometheus.MustRegister(TopClients)

@@ -84,3 +84,4 @@ If you want to strip the scheme and port out of the `server` label in the metric
 | adguard_top_upstreams_avg_response_time_seconds   | The average response time for each of the top upstream servers    |
 | adguard_dhcp_enabled                              | Whether dhcp is enabled                                           |
 | adguard_dhcp_leases                               | The dhcp leases                                                   |
+| adguard_queries_details                           | Number of queries with additional labels                          |

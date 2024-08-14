@@ -95,22 +95,24 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 	return out, nil
 }
 
-func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, error) {
+// func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, QueryPerClient, error) {
+func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, []logEntry, error) {
 	log := &queryLog{}
 	err := c.do(ctx, http.MethodGet, "/control/querylog?limit=1000&response_status=all", log)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	types, err := c.getQueryTypes(log)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	times, err := c.getQueryTimes(log)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return types, times, nil
+
+	return types, times, log.Log, nil
 }
 
 func (c *Client) getQueryTypes(log *queryLog) (map[string]map[string]int, error) {

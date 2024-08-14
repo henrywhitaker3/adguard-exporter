@@ -93,7 +93,7 @@ var (
 		Namespace: "adguard",
 		Help:      "The number of queries for a specific type",
 	}, []string{"server", "type", "client"})
-	TotalQueriesUser = prometheus.NewCounterVec(prometheus.CounterOpts{
+	TotalQueriesDetails = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name:      "queries_details",
 		Namespace: "adguard",
 		Help:      "Total queries by user",
@@ -173,7 +173,7 @@ func Init() {
 	prometheus.MustRegister(TopUpstreamsAvgTimes)
 	prometheus.MustRegister(QueryTypes)
 	prometheus.MustRegister(ProcessingTimeBucket)
-	prometheus.MustRegister(TotalQueriesUser)
+	prometheus.MustRegister(TotalQueriesDetails)
 
 	// Status
 	prometheus.MustRegister(Running)

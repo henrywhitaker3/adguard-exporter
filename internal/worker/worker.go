@@ -133,7 +133,7 @@ func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
 	}
 
 	for _, l := range queries {
-		metrics.TotalQueriesUser.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream).Inc()
+		metrics.TotalQueriesDetails.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream).Inc()
 	}
 
 	for _, t := range times {

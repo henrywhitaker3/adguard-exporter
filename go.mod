@@ -8,7 +8,7 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/prometheus/client_golang v1.19.1
-	github.com/sethvargo/go-envconfig v1.0.3
+	github.com/sethvargo/go-envconfig v1.1.0
 )
 
 require (

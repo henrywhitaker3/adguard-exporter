@@ -71,17 +71,25 @@ type type65 struct {
 	RData string    `json:"Rdata"`
 }
 
+type ClientInfo struct {
+	Whois          map[string]any `json:"whois"`
+	Name           string         `json:"name"`
+	DisallowedRule string         `json:"disallowed_rule"`
+	Disallowed     Bool           `json:"disallowed"`
+}
+
 type logEntry struct {
-	Answer      []answer `json:"answer"`
-	DNSSec      Bool     `json:"answer_dnssec"`
-	Client      string   `json:"client"`
-	ClientProto string   `json:"client_proto"`
-	Elapsed     string   `json:"elapsedMs"`
-	Question    query    `json:"question"`
-	Reason      string   `json:"reason"`
-	Status      string   `json:"status"`
-	Time        string   `json:"time"`
-	Upstream    string   `json:"upstream"`
+	Answer      []answer   `json:"answer"`
+	DNSSec      Bool       `json:"answer_dnssec"`
+	Client      string     `json:"client"`
+	ClientProto string     `json:"client_proto"`
+	Elapsed     string     `json:"elapsedMs"`
+	Question    query      `json:"question"`
+	Reason      string     `json:"reason"`
+	Status      string     `json:"status"`
+	Time        string     `json:"time"`
+	Upstream    string     `json:"upstream"`
+	ClientInfo  ClientInfo `json:"client_info"`
 }
 
 type QueryTime struct {

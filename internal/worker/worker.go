@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
@@ -56,7 +57,7 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
 	metrics.ReplacedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafesearchQueries))
 	metrics.ReplacedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafebrowsingQueries))
-	metrics.ReplcaedParental.WithLabelValues(client.Url()).Set(float64(stats.ReplacedParentalQueries))
+	metrics.ReplacedParental.WithLabelValues(client.Url()).Set(float64(stats.ReplacedParentalQueries))
 	metrics.AvgProcessingTime.WithLabelValues(client.Url()).Set(float64(stats.AvgProcessingTime))
 
 	for _, c := range stats.TopClients {
@@ -119,16 +120,28 @@ func collectDhcp(ctx context.Context, client *adguard.Client) {
 }
 
 func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
-	stats, times, err := client.GetQueryLog(ctx)
+	stats, times, queries, err := client.GetQueryLog(ctx)
 	if err != nil {
 		log.Printf("ERROR - could not get query type stats: %v\n", err)
 		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
 		return
 	}
 
-	for t, v := range stats {
-		metrics.QueryTypes.WithLabelValues(client.Url(), t).Set(float64(v))
+	for c, v := range stats {
+		for t, v := range v {
+			metrics.QueryTypes.WithLabelValues(client.Url(), t, c).Set(float64(v))
+		}
 	}
+
+	for _, l := range queries {
+		elapsed, err := strconv.ParseFloat(l.Elapsed, 64)
+		if err != nil {
+			continue
+		}
+		metrics.TotalQueriesDetails.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name).Set(elapsed)
+		metrics.TotalQueriesDetailsHistogram.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name).Observe(float64(elapsed))
+	}
+
 	for _, t := range times {
 		metrics.ProcessingTimeBucket.
 			WithLabelValues(client.Url(), t.Client, t.Upstream).

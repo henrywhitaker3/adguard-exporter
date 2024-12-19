@@ -35,6 +35,8 @@ func main() {
 	http := http.NewHttp(global.Server.Debug)
 	go http.Serve()
 	go worker.Work(ctx, global.Server.Interval, clients)
+	http.Ready(true)
+	http.Healthy(true)
 
 	<-sigs
 	if err := http.Stop(ctx); err != nil {

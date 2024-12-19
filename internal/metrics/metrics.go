@@ -58,8 +58,13 @@ var (
 		Namespace: "adguard",
 		Help:      "The average query processing time in seconds",
 	}, []string{"server"})
-	ProcessingTimeBucket = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+	ProcessingTimeBucketMilli = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name:      "processing_time_milliseconds",
+		Namespace: "adguard",
+		Help:      "The processing time of queries (deprecated, use processing_time_seconds)",
+	}, []string{"server", "client", "upstream"})
+	ProcessingTimeBucket = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name:      "processing_time_seconds",
 		Namespace: "adguard",
 		Help:      "The processing time of queries",
 	}, []string{"server", "client", "upstream"})
@@ -179,6 +184,7 @@ func Init() {
 	prometheus.MustRegister(TopUpstreamsAvgTimes)
 	prometheus.MustRegister(QueryTypes)
 	prometheus.MustRegister(ProcessingTimeBucket)
+	prometheus.MustRegister(ProcessingTimeBucketMilli)
 	prometheus.MustRegister(TotalQueriesDetails)
 	prometheus.MustRegister(TotalQueriesDetailsHistogram)
 

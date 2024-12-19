@@ -13,8 +13,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/henrywhitaker3/adguard-exporter/internal/config"
 	"github.com/mitchellh/mapstructure"
+
+	"github.com/henrywhitaker3/adguard-exporter/internal/config"
 )
 
 type Client struct {
@@ -148,10 +149,11 @@ func (c *Client) getQueryTimes(l *queryLog) ([]QueryTime, error) {
 			log.Printf("ERROR - could not parse query elapsed time %v as float\n", q.Elapsed)
 			continue
 		}
+
 		out = append(out, QueryTime{
-			Elapsed:  time.Millisecond * time.Duration(ms),
-			Client:   q.Client,
-			Upstream: q.Upstream,
+			ElapsedSeconds: time.Duration(ms) * time.Millisecond / time.Second,
+			Client:         q.Client,
+			Upstream:       q.Upstream,
 		})
 	}
 	return out, nil

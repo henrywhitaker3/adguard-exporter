@@ -93,9 +93,9 @@ type logEntry struct {
 }
 
 type QueryTime struct {
-	Elapsed  time.Duration
-	Client   string
-	Upstream string
+	ElapsedSeconds time.Duration
+	Client         string
+	Upstream       string
 }
 
 type queryLog struct {

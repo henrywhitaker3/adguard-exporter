@@ -7,7 +7,7 @@ require (
 	github.com/labstack/echo-contrib v0.17.1
 	github.com/labstack/echo/v4 v4.13.2
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/prometheus/client_golang v1.20.2
+	github.com/prometheus/client_golang v1.20.5
 	github.com/sethvargo/go-envconfig v1.1.0
 )
 

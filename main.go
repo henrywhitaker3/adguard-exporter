@@ -33,7 +33,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	http := http.NewHttp(global.Server.Debug)
-	go http.Serve()
+	go http.Serve(global.Server.BindAddr)
 	go worker.Work(ctx, global.Server.Interval, clients)
 	http.Ready(true)
 	http.Healthy(true)

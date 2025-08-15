@@ -1,6 +1,7 @@
 package adguard
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -57,6 +58,49 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 	if err := json.Unmarshal(body, out); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (c *Client) doPost(ctx context.Context, path string, body any, out any) error {
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
+	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
+	if err != nil {
+		return err
+	}
+
+	b, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	if out != nil {
+		if err := json.Unmarshal(bodyBytes, out); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -159,4 +203,32 @@ func (c *Client) getQueryTimes(l *queryLog) ([]QueryTime, error) {
 
 func (c *Client) Url() string {
 	return c.conf.Url
+}
+
+func (c *Client) SearchClients(ctx context.Context, topClients []map[string]int) (map[string]string, error) {
+	reqBody := clientsSearchRequest{}
+    for _, c := range topClients {
+        for key := range c {
+            reqBody.Clients = append(reqBody.Clients, struct {
+                ID string `json:"id"`
+            }{ID: key})
+        }
+    }
+
+	var resp []map[string]clientInfo
+	err := c.doPost(ctx, "/control/clients/search", reqBody, &resp)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]string)
+	for _, obj := range resp {
+		for _, info := range obj {
+			for _, id := range info.IDs {
+				result[id] = info.Name
+			}
+		}
+	}
+
+	return result, nil
 }

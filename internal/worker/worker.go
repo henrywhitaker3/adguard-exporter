@@ -53,6 +53,16 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
 		return
 	}
+
+	names := map[string]string{}
+	if len(stats.TopClients) > 0 {
+		names, err = client.SearchClients(ctx, stats.TopClients)
+		if err != nil {
+			log.Printf("ERROR - could not search clients: %v\n", err)
+			metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		}
+	}
+
 	metrics.TotalQueries.WithLabelValues(client.Url()).Set(float64(stats.TotalQueries))
 	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
 	metrics.ReplacedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafesearchQueries))
@@ -62,7 +72,11 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 
 	for _, c := range stats.TopClients {
 		for key, val := range c {
-			metrics.TopClients.WithLabelValues(client.Url(), key).Set(float64(val))
+			name := names[key]
+			if name == "" {
+				name = key // fallback to IP if no name
+			}
+			metrics.TopClients.WithLabelValues(client.Url(), key, name).Set(float64(val))
 		}
 	}
 	for _, c := range stats.TopUpstreamsResponses {

@@ -1,4 +1,4 @@
-FROM alpine:3.21.0 AS certs
+FROM alpine:3.22.1 AS certs
 
 RUN apk add ca-certificates
 
@@ -11,7 +11,7 @@ COPY . /build
 RUN go mod download
 RUN CGO_ENABLED=0 go build -a -o adguard-exporter main.go
 
-FROM alpine:3.21.0
+FROM alpine:3.22.1
 
 ARG SREP_VERSION
 ENV SREP_VERSION ${SREP_VERSION}

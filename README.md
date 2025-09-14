@@ -41,6 +41,7 @@ $ docker run \
 | `ADGUARD_PASSWORDS` | The password to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. | `True` | |
 | `INTERVAL` | The interval that the exporter scrapes metrics from the server | `False` | `30s` |
 | `DEBUG` | Turns on the go profiler | `False` | `false` |
+| `BIND_ADDR` | Address to which the Http-Server is bound | `False` | `:9618` |
 
 ## Usage
 

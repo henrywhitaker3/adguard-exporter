@@ -40,9 +40,9 @@ func NewHttp(debug bool) *Http {
 	return http
 }
 
-func (h *Http) Serve() error {
-	log.Println("Starting http server on port 9618")
-	return h.e.Start(":9618")
+func (h *Http) Serve(bindAddr string) error {
+	log.Println("Starting http server on " + bindAddr)
+	return h.e.Start(bindAddr)
 }
 
 func (h *Http) Stop(ctx context.Context) error {

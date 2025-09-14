@@ -17,6 +17,7 @@ type Global struct {
 type Server struct {
 	Interval time.Duration `env:"INTERVAL, default=30s"`
 	Debug    bool          `env:"DEBUG, default=false"`
+	BindAddr string        `env:"BIND_ADDR"`
 }
 
 type Config struct {
@@ -41,6 +42,9 @@ func FromEnv() (*Global, error) {
 	serv := &Server{}
 	if err := envconfig.Process(context.Background(), serv); err != nil {
 		return nil, err
+	}
+	if len(serv.BindAddr) == 0 {
+		serv.BindAddr = ":9618"
 	}
 
 	if err := env.Validate(); err != nil {

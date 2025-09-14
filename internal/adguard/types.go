@@ -102,3 +102,14 @@ type queryLog struct {
 	Log    []logEntry `json:"data"`
 	Oldest string     `json:"oldest"`
 }
+
+type clientsSearchRequest struct {
+    Clients []struct {
+        ID string `json:"id"`
+    } `json:"clients"`
+}
+
+type clientInfo struct {
+    IDs  []string `json:"ids"`
+    Name string   `json:"name"`
+}

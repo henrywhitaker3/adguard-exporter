@@ -1,31 +1,28 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "labels": [
-    "renovate::dependencies",
-    "{{#if category}}renovate::{{category}}{{/if}}",
-    "{{#if updateType}}renovate::{{updateType}}{{/if}}",
-    "{{#if datasource}}renovate::{{datasource}}{{/if}}",
-    "{{#if manager}}renovate::{{manager}}{{/if}}",
-    "{{#if vulnerabilitySeverity}}renovate::{{vulnerabilitySeverity}}{{/if}}",
-    "renovate::{{#if isVulnerabilityAlert}}vulnerability{{else}}not-vulnerability{{/if}}"
-  ],
-  "pinDigests": false,
-  "enabled": true,
-  "separateMajorMinor": true,
-  "automerge": true,
-  "packageRules": [
-    {
-      "matchManagers": [
-        "gomod"
-      ],
-      "postUpdateOptions": [
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended"],
+    "labels": [
+        "renovate::dependencies",
+        "{{#if category}}renovate::{{category}}{{/if}}",
+        "{{#if updateType}}renovate::{{updateType}}{{/if}}",
+        "{{#if datasource}}renovate::{{datasource}}{{/if}}",
+        "{{#if manager}}renovate::{{manager}}{{/if}}",
+        "{{#if vulnerabilitySeverity}}renovate::{{vulnerabilitySeverity}}{{/if}}",
+        "renovate::{{#if isVulnerabilityAlert}}vulnerability{{else}}not-vulnerability{{/if}}"
+    ],
+    "pinDigests": false,
+    "enabled": true,
+    "separateMajorMinor": true,
+    "automerge": true,
+    "postUpdateOptions": ["gomodTidy"],
+    "packageRules": [
         {
-          "gomodTidy": true
+            "matchManagers": ["gomod"],
+            "postUpdateOptions": [
+                {
+                    "gomodTidy": true
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

@@ -2,7 +2,7 @@ FROM alpine:3.21.0 AS certs
 
 RUN apk add ca-certificates
 
-FROM golang:1.23 AS builder
+FROM golang:1.25 AS builder
 
 WORKDIR /build
 

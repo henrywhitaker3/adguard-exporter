@@ -8,3 +8,5 @@ debug
 .idea/
 
 .env
+
+reports/

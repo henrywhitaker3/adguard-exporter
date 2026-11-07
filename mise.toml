@@ -1,0 +1,42 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
+[tools]
+go = "1.27.3"
+gotestsum = "1.13.0"
+jq = "1.8.2"
+
+[tasks.serve]
+description = "Run the app"
+run = '''
+go run main.go | (
+  trap '' INT TERM
+  jq
+)
+'''
+
+[tasks.test]
+description = "Run the unit tests"
+usage = 'flag "--packages <packages>" help="Go package patterns to test" default="./..."'
+run = '''
+gotestsum --format testname --packages "{{ usage.packages }}"
+'''
+
+[tasks.memory]
+description = "Get pprof of the heap"
+run = '''
+go tool pprof http://127.0.0.1:9618/debug/pprof/heap
+'''
+
+[tasks.memory-png]
+description = "Export the current heap profile as a png"
+run = '''
+go tool pprof -png http://127.0.0.1:9618/debug/pprof/heap > out.png
+'''
+
+[tasks.coverage]
+description = "Generate an HTML Go coverage report"
+run = [
+    "mkdir -p reports",
+    "go test ./... -coverprofile=reports/coverage.out",
+    "go tool cover -html=reports/coverage.out -o reports/coverage.html",
+]

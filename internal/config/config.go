@@ -53,11 +53,7 @@ func FromEnv() (*Global, error) {
 
 	configs := []Config{}
 	for i := range env.Urls {
-		configs = append(configs, Config{
-			Url:      env.Urls[i],
-			Username: env.Usernames[i],
-			Password: env.Passwords[i],
-		})
+		configs = append(configs, buildConfig(i, env.Urls, env.Usernames, env.Passwords))
 	}
 
 	return &Global{
@@ -66,21 +62,28 @@ func FromEnv() (*Global, error) {
 	}, nil
 }
 
+func buildConfig(i int, urls, usernames, password []string) Config {
+	conf := Config{
+		Url: urls[i],
+	}
+	if i < len(usernames) {
+		conf.Username = usernames[i]
+	}
+	if i < len(password) {
+		conf.Password = password[i]
+	}
+
+	return conf
+}
+
 func (e *EnvConfig) Validate() error {
 	if len(e.Urls) == 0 {
 		return errors.New("no urls supplied")
 	}
-	if len(e.Usernames) == 0 {
-		return errors.New("no usernames supplied")
-	}
-	if len(e.Passwords) == 0 {
-		return errors.New("no passwords supplied")
-	}
-
-	if len(e.Urls) != len(e.Usernames) {
+	if len(e.Usernames) > 0 && len(e.Urls) != len(e.Usernames) {
 		return errors.New("number of urls does not match number of usernames")
 	}
-	if len(e.Urls) != len(e.Passwords) {
+	if len(e.Passwords) > 0 && len(e.Urls) != len(e.Passwords) {
 		return errors.New("number of urls does not match number of passwords")
 	}
 

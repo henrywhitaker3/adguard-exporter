@@ -45,6 +45,21 @@ func TestGetStatus(t *testing.T) {
 	assert.Equal(t, "v0.107.63", status.Version)
 }
 
+func TestGetStatusWithoutCredentialsDoesNotSendAuthorization(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Empty(t, r.Header.Get("Authorization"))
+		_, err := w.Write([]byte(`{"protection_enabled":true,"version":"v0.107.80","running":true}`))
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+	client := NewClient(config.Config{Url: server.URL})
+
+	status, err := client.GetStatus(context.Background())
+
+	require.NoError(t, err)
+	assert.Equal(t, "v0.107.80", status.Version)
+}
+
 func TestGetDhcpCombinesAndLabelsLeases(t *testing.T) {
 	client := newTestClient(t, fixtureResponse(t, "dhcp-status.json", func(r *http.Request) {
 		assert.Equal(t, http.MethodGet, r.Method)

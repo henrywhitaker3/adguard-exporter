@@ -146,20 +146,51 @@ func (d *DhcpLeasesServer) Record(server string, leases []adguard.DhcpLease) {
 	d.leases[server] = leases
 }
 
+// leaseKey is the full label set of an adguard_dhcp_leases series. Used as a
+// dedup map key: a struct of strings is allocation-free and collision-proof
+// (unlike joining the fields into one string).
+type leaseKey struct {
+	server, leaseType, ip, mac, hostname, expires string
+}
+
 func (d *DhcpLeasesServer) Collect(ch chan<- prometheus.Metric) {
+	// AdGuard can hand back duplicate lease rows: an in-place self-update
+	// rebuilds the lease table, and clients behind a MAC-NAT'ing wifi repeater
+	// collapse onto a single bridge MAC. Emitting the same label tuple twice
+	// makes the prometheus registry fail the entire scrape with a hard 500
+	// ("was collected before with the same name and label values"), which
+	// reads as the whole exporter being down. De-duplicate on the full label
+	// set so a duplicate lease is skipped rather than poisoning every metric.
+	//
+	// Build the metric set under d.mu (the worker writes d.leases under the
+	// same lock), then release it before sending to the channel. Holding the
+	// lock across blocking channel sends would stall Record for the whole scrape.
+	d.mu.Lock()
+	seen := make(map[leaseKey]struct{})
+	emit := make([]prometheus.Metric, 0, len(d.leases))
 	for server, leases := range d.leases {
 		for _, lease := range leases {
 			expires := ""
 			if lease.Expires != nil {
 				expires = lease.Expires.Format(time.RFC3339)
 			}
-			ch <- prometheus.MustNewConstMetric(
+			key := leaseKey{server, lease.Type, lease.IP, lease.Mac, lease.Hostname, expires}
+			if _, dup := seen[key]; dup {
+				continue
+			}
+			seen[key] = struct{}{}
+			emit = append(emit, prometheus.MustNewConstMetric(
 				d.Desc,
 				prometheus.CounterValue,
 				1,
 				server, lease.Type, lease.IP, lease.Mac, lease.Hostname, expires,
-			)
+			))
 		}
+	}
+	d.mu.Unlock()
+
+	for _, m := range emit {
+		ch <- m
 	}
 }
 

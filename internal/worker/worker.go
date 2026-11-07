@@ -65,9 +65,12 @@ func collectStats(ctx context.Context, client *adguard.Client) {
 
 	metrics.TotalQueries.WithLabelValues(client.Url()).Set(float64(stats.TotalQueries))
 	metrics.BlockedFiltered.WithLabelValues(client.Url()).Set(float64(stats.BlockedFilteredQueries))
-	metrics.ReplacedSafesearch.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafesearchQueries))
-	metrics.ReplacedSafebrowsing.WithLabelValues(client.Url()).Set(float64(stats.ReplacedSafebrowsingQueries))
-	metrics.ReplacedParental.WithLabelValues(client.Url()).Set(float64(stats.ReplacedParentalQueries))
+	metrics.ReplacedSafesearch.WithLabelValues(client.Url()).
+		Set(float64(stats.ReplacedSafesearchQueries))
+	metrics.ReplacedSafebrowsing.WithLabelValues(client.Url()).
+		Set(float64(stats.ReplacedSafebrowsingQueries))
+	metrics.ReplacedParental.WithLabelValues(client.Url()).
+		Set(float64(stats.ReplacedParentalQueries))
 	metrics.AvgProcessingTime.WithLabelValues(client.Url()).Set(float64(stats.AvgProcessingTime))
 
 	for _, c := range stats.TopClients {
@@ -119,7 +122,8 @@ func collectStatus(ctx context.Context, client *adguard.Client) {
 	}
 
 	metrics.Running.WithLabelValues(client.Url(), status.Version).Set(float64(status.Running.Int()))
-	metrics.ProtectionEnabled.WithLabelValues(client.Url()).Set(float64(status.ProtectionEnabled.Int()))
+	metrics.ProtectionEnabled.WithLabelValues(client.Url()).
+		Set(float64(status.ProtectionEnabled.Int()))
 }
 
 func collectDhcp(ctx context.Context, client *adguard.Client) {
@@ -156,14 +160,16 @@ func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
 		if protocol == "" {
 			protocol = "plain"
 		}
-		metrics.TotalQueriesDetails.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name, protocol).Set(elapsed)
-		metrics.TotalQueriesDetailsHistogram.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name, protocol).Observe(float64(elapsed))
+		metrics.TotalQueriesDetails.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name, protocol).
+			Set(elapsed)
+		metrics.TotalQueriesDetailsHistogram.WithLabelValues(client.Url(), l.Client, l.Reason, l.Status, l.Upstream, l.ClientInfo.Name, protocol).
+			Observe(float64(elapsed))
 	}
 
 	for _, t := range times {
 		metrics.ProcessingTimeBucketMilli.
 			WithLabelValues(client.Url(), t.Client, t.Upstream).
-			Observe(float64(t.Elapsed.Milliseconds()))
+			Observe(float64(t.Elapsed) / float64(time.Millisecond))
 		metrics.ProcessingTimeBucket.
 			WithLabelValues(client.Url(), t.Client, t.Upstream).
 			Observe(t.Elapsed.Seconds())

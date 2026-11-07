@@ -67,6 +67,22 @@ var (
 		Name:      "processing_time_seconds",
 		Namespace: "adguard",
 		Help:      "The processing time of queries",
+		Buckets: []float64{
+			0.01,
+			0.015,
+			0.02,
+			0.03,
+			0.06,
+			0.09,
+			0.1,
+			0.18,
+			0.22,
+			0.24,
+			0.26,
+			0.28,
+		},
+		NativeHistogramMaxBucketNumber: 256,
+		NativeHistogramBucketFactor:    1.1,
 	}, []string{"server", "client", "upstream"})
 	TopQueriedDomains = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name:      "top_queried_domains",

@@ -143,7 +143,6 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 	return out, nil
 }
 
-// func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, QueryPerClient, error) {
 func (c *Client) GetQueryLog(
 	ctx context.Context,
 ) (map[string]map[string]int, []QueryTime, []logEntry, error) {

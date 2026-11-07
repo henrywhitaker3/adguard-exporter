@@ -104,12 +104,12 @@ type queryLog struct {
 }
 
 type clientsSearchRequest struct {
-    Clients []struct {
-        ID string `json:"id"`
-    } `json:"clients"`
+	Clients []struct {
+		ID string `json:"id"`
+	} `json:"clients"`
 }
 
 type clientInfo struct {
-    IDs  []string `json:"ids"`
-    Name string   `json:"name"`
+	IDs  []string `json:"ids"`
+	Name string   `json:"name"`
 }

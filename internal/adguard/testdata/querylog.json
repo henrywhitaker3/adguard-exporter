@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      "answer": [
+        {"type": "A", "ttl": 300, "value": "93.184.216.34"},
+        {
+          "type": "HTTPS",
+          "ttl": 300,
+          "value": {
+            "Hdr": {"Name": "example.com.", "Rrtype": 65, "Class": 1, "Ttl": 300, "Rdlength": 0},
+            "Rdata": ""
+          }
+        }
+      ],
+      "answer_dnssec": false,
+      "client": "192.0.2.10",
+      "client_proto": "udp",
+      "elapsedMs": "3.75",
+      "question": {"class": "IN", "name": "example.com", "type": "A"},
+      "reason": "NotFilteredNotFound",
+      "status": "NOERROR",
+      "time": "2026-11-07T12:00:00Z",
+      "upstream": "https://dns.example/dns-query",
+      "client_info": {"name": "laptop"}
+    },
+    {
+      "answer": [{"type": "AAAA", "ttl": 300, "value": "2001:db8::1"}],
+      "answer_dnssec": false,
+      "client": "2001:db8::10",
+      "elapsedMs": "2",
+      "question": {"class": "IN", "name": "example.net", "type": "AAAA"},
+      "reason": "NotFilteredWhiteList",
+      "status": "NOERROR",
+      "time": "2026-11-07T12:00:01Z",
+      "upstream": "",
+      "client_info": {"name": "phone"}
+    },
+    {
+      "answer": [],
+      "client": "192.0.2.10",
+      "elapsedMs": "not-a-number",
+      "question": {"class": "IN", "name": "invalid.example", "type": "A"},
+      "upstream": ""
+    }
+  ],
+  "oldest": "2026-11-07T11:00:00Z"
+}

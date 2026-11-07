@@ -1,0 +1,13 @@
+{
+  "num_dns_queries": 1042,
+  "num_blocked_filtering": 51,
+  "num_replaced_safebrowsing": 3,
+  "num_replaced_safesearch": 6,
+  "num_replaced_parental": 2,
+  "avg_processing_time": 0.0042,
+  "top_queried_domains": [{"example.com": 42}],
+  "top_blocked_domains": [{"ads.example": 12}],
+  "top_clients": [{"192.0.2.10": 100}, {"2001:db8::10": 20}],
+  "top_upstreams_responses": [{"https://dns.example/dns-query": 99}],
+  "top_upstreams_avg_time": [{"https://dns.example/dns-query": 0.008}]
+}

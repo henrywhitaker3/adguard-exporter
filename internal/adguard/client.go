@@ -29,7 +29,9 @@ func NewClient(conf config.Config) *Client {
 }
 
 func (c *Client) do(ctx context.Context, method string, path string, out any) error {
-	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
+	auth := base64.StdEncoding.EncodeToString(
+		fmt.Appendf(nil, "%s:%s", c.conf.Username, c.conf.Password),
+	)
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -47,13 +49,13 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code %d: %v", resp.StatusCode, err)
-	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code %d: %s", resp.StatusCode, string(body))
 	}
 	if err := json.Unmarshal(body, out); err != nil {
 		return err
@@ -62,7 +64,9 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 }
 
 func (c *Client) doPost(ctx context.Context, path string, body any, out any) error {
-	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
+	auth := base64.StdEncoding.EncodeToString(
+		[]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)),
+	)
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -140,7 +144,9 @@ func (c *Client) GetDhcp(ctx context.Context) (*DhcpStatus, error) {
 }
 
 // func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, QueryPerClient, error) {
-func (c *Client) GetQueryLog(ctx context.Context) (map[string]map[string]int, []QueryTime, []logEntry, error) {
+func (c *Client) GetQueryLog(
+	ctx context.Context,
+) (map[string]map[string]int, []QueryTime, []logEntry, error) {
 	log := &queryLog{}
 	err := c.do(ctx, http.MethodGet, "/control/querylog?limit=1000&response_status=all", log)
 	if err != nil {
@@ -187,13 +193,13 @@ func (c *Client) getQueryTimes(l *queryLog) ([]QueryTime, error) {
 		if q.Upstream == "" {
 			q.Upstream = "self"
 		}
-		ms, err := strconv.ParseFloat(q.Elapsed, 32)
+		ms, err := strconv.ParseFloat(q.Elapsed, 64)
 		if err != nil {
 			log.Printf("ERROR - could not parse query elapsed time %v as float\n", q.Elapsed)
 			continue
 		}
 		out = append(out, QueryTime{
-			Elapsed:  time.Millisecond * time.Duration(ms),
+			Elapsed:  time.Duration(ms * float64(time.Millisecond)),
 			Client:   q.Client,
 			Upstream: q.Upstream,
 		})
@@ -205,15 +211,18 @@ func (c *Client) Url() string {
 	return c.conf.Url
 }
 
-func (c *Client) SearchClients(ctx context.Context, topClients []map[string]int) (map[string]string, error) {
+func (c *Client) SearchClients(
+	ctx context.Context,
+	topClients []map[string]int,
+) (map[string]string, error) {
 	reqBody := clientsSearchRequest{}
-    for _, c := range topClients {
-        for key := range c {
-            reqBody.Clients = append(reqBody.Clients, struct {
-                ID string `json:"id"`
-            }{ID: key})
-        }
-    }
+	for _, c := range topClients {
+		for key := range c {
+			reqBody.Clients = append(reqBody.Clients, struct {
+				ID string `json:"id"`
+			}{ID: key})
+		}
+	}
 
 	var resp []map[string]clientInfo
 	err := c.doPost(ctx, "/control/clients/search", reqBody, &resp)

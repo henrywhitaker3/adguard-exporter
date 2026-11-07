@@ -39,7 +39,4 @@ func main() {
 	http.Healthy(true)
 
 	<-sigs
-	if err := http.Stop(ctx); err != nil {
-		panic(err)
-	}
 }

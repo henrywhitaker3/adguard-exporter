@@ -97,6 +97,27 @@ func TestCollectStatusSupportsConcurrentCollections(t *testing.T) {
 	assert.Len(t, collectRunningMetrics(t), len(clients))
 }
 
+func TestCollectQueryLogStatsReplacesStaleSeriesForEachServer(t *testing.T) {
+	resetQueryLogMetrics(t)
+
+	firstResponse := &queryLogResponse{Data: []queryLogEntryResponse{newQueryLogEntry("first-old")}}
+	secondResponse := &queryLogResponse{Data: []queryLogEntryResponse{newQueryLogEntry("second-current")}}
+	firstClient := newQueryLogClient(t, firstResponse)
+	secondClient := newQueryLogClient(t, secondResponse)
+
+	collectQueryLogStats(context.Background(), firstClient)
+	collectQueryLogStats(context.Background(), secondClient)
+
+	firstResponse.Data = []queryLogEntryResponse{newQueryLogEntry("first-current")}
+	collectQueryLogStats(context.Background(), firstClient)
+
+	expected := map[string]int{firstClient.Url(): 1, secondClient.Url(): 1}
+	assert.Equal(t, expected, collectMetricSeriesByServer(t, metrics.TotalQueriesDetails))
+	assert.Equal(t, expected, collectMetricSeriesByServer(t, metrics.TotalQueriesDetailsHistogram))
+	assert.Equal(t, expected, collectMetricSeriesByServer(t, metrics.ProcessingTimeBucketMilli))
+	assert.Equal(t, expected, collectMetricSeriesByServer(t, metrics.ProcessingTimeBucket))
+}
+
 type statusResponse struct {
 	Version           string `json:"version"`
 	Running           bool   `json:"running"`
@@ -109,6 +130,22 @@ type runningMetric struct {
 	Value   float64
 }
 
+type queryLogResponse struct {
+	Data []queryLogEntryResponse `json:"data"`
+}
+
+type queryLogEntryResponse struct {
+	Client      string `json:"client"`
+	ClientProto string `json:"client_proto"`
+	Elapsed     string `json:"elapsedMs"`
+	Reason      string `json:"reason"`
+	Status      string `json:"status"`
+	Upstream    string `json:"upstream"`
+	ClientInfo  struct {
+		Name string `json:"name"`
+	} `json:"client_info"`
+}
+
 func newStatusClient(t *testing.T, response *statusResponse) *adguard.Client {
 	t.Helper()
 
@@ -117,6 +154,19 @@ func newStatusClient(t *testing.T, response *statusResponse) *adguard.Client {
 			http.Error(w, "unavailable", response.StatusCode)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(response)
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+
+	return adguard.NewClient(config.Config{Url: server.URL})
+}
+
+func newQueryLogClient(t *testing.T, response *queryLogResponse) *adguard.Client {
+	t.Helper()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		err := json.NewEncoder(w).Encode(response)
 		assert.NoError(t, err)
@@ -161,5 +211,54 @@ func resetStatusState(t *testing.T) {
 		metrics.Running.Reset()
 		metrics.ProtectionEnabled.Reset()
 		metrics.ScrapeErrors.Reset()
+	})
+}
+
+func newQueryLogEntry(client string) queryLogEntryResponse {
+	entry := queryLogEntryResponse{
+		Client:      client,
+		ClientProto: "udp",
+		Elapsed:     "3.75",
+		Reason:      "NotFilteredNotFound",
+		Status:      "NOERROR",
+		Upstream:    "https://dns.example/dns-query",
+	}
+	entry.ClientInfo.Name = client
+
+	return entry
+}
+
+func collectMetricSeriesByServer(t *testing.T, collector prometheus.Collector) map[string]int {
+	t.Helper()
+
+	registry := prometheus.NewRegistry()
+	require.NoError(t, registry.Register(collector))
+	metricFamilies, err := registry.Gather()
+	require.NoError(t, err)
+
+	series := map[string]int{}
+	for _, metric := range metricFamilies[0].Metric {
+		for _, label := range metric.Label {
+			if label.GetName() == "server" {
+				series[label.GetValue()]++
+			}
+		}
+	}
+
+	return series
+}
+
+func resetQueryLogMetrics(t *testing.T) {
+	t.Helper()
+
+	metrics.TotalQueriesDetails.Reset()
+	metrics.TotalQueriesDetailsHistogram.Reset()
+	metrics.ProcessingTimeBucketMilli.Reset()
+	metrics.ProcessingTimeBucket.Reset()
+	t.Cleanup(func() {
+		metrics.TotalQueriesDetails.Reset()
+		metrics.TotalQueriesDetailsHistogram.Reset()
+		metrics.ProcessingTimeBucketMilli.Reset()
+		metrics.ProcessingTimeBucket.Reset()
 	})
 }

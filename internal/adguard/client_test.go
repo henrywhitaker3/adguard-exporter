@@ -132,6 +132,17 @@ func TestClientReturnsResponseErrors(t *testing.T) {
 	})
 }
 
+func TestClientUsesConfiguredRequestTimeout(t *testing.T) {
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		<-r.Context().Done()
+	})
+	client.httpClient.Timeout = 10 * time.Millisecond
+
+	_, err := client.GetStatus(context.Background())
+
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+}
+
 func newTestClient(t *testing.T, handler http.HandlerFunc) *Client {
 	t.Helper()
 

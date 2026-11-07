@@ -243,3 +243,12 @@ func Init() {
 	prometheus.MustRegister(DhcpEnabled)
 	prometheus.MustRegister(DhcpLeases)
 }
+
+func DeleteQueryLogMetrics(server string) {
+	labels := prometheus.Labels{"server": server}
+	QueryTypes.DeletePartialMatch(labels)
+	TotalQueriesDetails.DeletePartialMatch(labels)
+	TotalQueriesDetailsHistogram.DeletePartialMatch(labels)
+	ProcessingTimeBucketMilli.DeletePartialMatch(labels)
+	ProcessingTimeBucket.DeletePartialMatch(labels)
+}

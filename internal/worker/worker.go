@@ -16,6 +16,7 @@ var (
 	initialised = []string{}
 	versions    = map[string]string{}
 	stateMu     sync.Mutex
+	queryMu     sync.Mutex
 )
 
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
@@ -154,6 +155,11 @@ func collectQueryLogStats(ctx context.Context, client *adguard.Client) {
 		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
 		return
 	}
+
+	queryMu.Lock()
+	defer queryMu.Unlock()
+
+	metrics.DeleteQueryLogMetrics(client.Url())
 
 	for c, v := range stats {
 		for t, v := range v {

@@ -18,13 +18,17 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+const adGuardRequestTimeout = 15 * time.Second
+
 type Client struct {
-	conf config.Config
+	conf       config.Config
+	httpClient *http.Client
 }
 
 func NewClient(conf config.Config) *Client {
 	return &Client{
-		conf: conf,
+		conf:       conf,
+		httpClient: &http.Client{Timeout: adGuardRequestTimeout},
 	}
 }
 
@@ -45,7 +49,7 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
 	req = req.WithContext(ctx)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -84,7 +88,7 @@ func (c *Client) doPost(ctx context.Context, path string, body any, out any) err
 	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
 	}

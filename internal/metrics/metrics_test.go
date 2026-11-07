@@ -1,10 +1,12 @@
 package metrics
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/stretchr/testify/require"
 )
 
 // AdGuard can return duplicate lease rows (in-place self-update rebuilds the
@@ -51,4 +53,35 @@ func TestDhcpLeasesCollectDeduplicates(t *testing.T) {
 		return
 	}
 	t.Fatal("adguard_dhcp_leases metric family not found")
+}
+
+func TestDhcpLeasesRecordsAndCollectsConcurrently(t *testing.T) {
+	d := NewDhcpLeasesServer(DhcpLeasesMetric)
+	leases := []adguard.DhcpLease{{
+		Mac:      "2a:fc:97:00:a6:e0",
+		IP:       "192.168.3.114",
+		Hostname: "iphone",
+		Type:     "dynamic",
+	}}
+
+	start := make(chan struct{})
+	var group sync.WaitGroup
+	for range 100 {
+		group.Go(func() {
+			<-start
+			d.Record("http://192.168.3.2", leases)
+		})
+		group.Go(func() {
+			<-start
+			metrics := make(chan prometheus.Metric, 1)
+			d.Collect(metrics)
+		})
+	}
+	close(start)
+	group.Wait()
+
+	registry := prometheus.NewPedanticRegistry()
+	require.NoError(t, registry.Register(d))
+	_, err := registry.Gather()
+	require.NoError(t, err)
 }

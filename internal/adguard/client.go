@@ -33,9 +33,6 @@ func NewClient(conf config.Config) *Client {
 }
 
 func (c *Client) do(ctx context.Context, method string, path string, out any) error {
-	auth := base64.StdEncoding.EncodeToString(
-		fmt.Appendf(nil, "%s:%s", c.conf.Username, c.conf.Password),
-	)
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -46,7 +43,7 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 		Header: http.Header{},
 		URL:    url,
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
+	c.setAuthorization(req.Header)
 	req = req.WithContext(ctx)
 
 	resp, err := c.httpClient.Do(req)
@@ -68,9 +65,6 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 }
 
 func (c *Client) doPost(ctx context.Context, path string, body any, out any) error {
-	auth := base64.StdEncoding.EncodeToString(
-		[]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)),
-	)
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -85,7 +79,7 @@ func (c *Client) doPost(ctx context.Context, path string, body any, out any) err
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", auth))
+	c.setAuthorization(req.Header)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
@@ -110,6 +104,14 @@ func (c *Client) doPost(ctx context.Context, path string, body any, out any) err
 	}
 
 	return nil
+}
+
+func (c *Client) setAuthorization(header http.Header) {
+	if c.conf.Username == "" && c.conf.Password == "" {
+		return
+	}
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
+	header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
 }
 
 func (c *Client) GetStats(ctx context.Context) (*Stats, error) {

@@ -37,8 +37,8 @@ $ docker run \
 | Variable | Description | Required | Default |
 | --- | --- | --- | --- |
 | `ADGUARD_SERVERS` | The servers you want the exporter to scrape. Must include the scheme `http(s)` and port if non-standard. | `True` | |
-| `ADGUARD_USERNAMES` | The username to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. | `True` | |
-| `ADGUARD_PASSWORDS` | The password to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. | `True` | |
+| `ADGUARD_USERNAMES` | The username to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. Use an empty comma-separated entry for a server without credentials. | `False` | |
+| `ADGUARD_PASSWORDS` | The password to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. Use an empty comma-separated entry for a server without credentials. | `False` | |
 | `INTERVAL` | The interval that the exporter scrapes metrics from the server | `False` | `30s` |
 | `DEBUG` | Turns on the go profiler | `False` | `false` |
 | `BIND_ADDR` | Address to which the Http-Server is bound | `False` | `:9618` |

@@ -40,6 +40,7 @@ $ docker run \
 | `ADGUARD_USERNAMES` | The username to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. Use an empty comma-separated entry for a server without credentials. | `False` | |
 | `ADGUARD_PASSWORDS` | The password to connect to the adguard api with. Must be in the same order as `ADGUARD_SERVERS` if scraping multiple instances. Use an empty comma-separated entry for a server without credentials. Ignored when `ADGUARD_PASSWORDS_FILE` is set. | `False` | |
 | `ADGUARD_PASSWORDS_FILE` | Path to a Docker secret file containing comma-separated passwords. Takes precedence over `ADGUARD_PASSWORDS`. | `False` | |
+| `ADGUARD_CA_CERT_FILE` | Path to a PEM CA certificate file added to the system trust store for AdGuard HTTPS connections. | `False` | |
 | `INTERVAL` | The interval that the exporter scrapes metrics from the server | `False` | `30s` |
 | `DEBUG` | Turns on the go profiler | `False` | `false` |
 | `BIND_ADDR` | Address to which the Http-Server is bound | `False` | `:9618` |

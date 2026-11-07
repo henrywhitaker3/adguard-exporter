@@ -5,6 +5,7 @@ import (
 	"log"
 	"slices"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/henrywhitaker3/adguard-exporter/internal/adguard"
@@ -14,6 +15,7 @@ import (
 var (
 	initialised = []string{}
 	versions    = map[string]string{}
+	stateMu     sync.Mutex
 )
 
 func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client) {
@@ -32,11 +34,12 @@ func Work(ctx context.Context, interval time.Duration, clients []*adguard.Client
 }
 
 func collect(ctx context.Context, client *adguard.Client) error {
-	// Initialise the scrape errors counter with a 0
+	stateMu.Lock()
 	if !slices.Contains(initialised, client.Url()) {
 		metrics.ScrapeErrors.WithLabelValues(client.Url())
 		initialised = append(initialised, client.Url())
 	}
+	stateMu.Unlock()
 
 	go collectStats(ctx, client)
 	go collectStatus(ctx, client)
@@ -109,19 +112,26 @@ func collectStatus(ctx context.Context, client *adguard.Client) {
 	if err != nil {
 		log.Printf("ERROR - could not get status: %v\n", err)
 		metrics.ScrapeErrors.WithLabelValues(client.Url()).Inc()
+		stateMu.Lock()
+		version := versions[client.Url()]
+		if version == "" {
+			version = "unknown"
+			versions[client.Url()] = version
+		}
+		metrics.Running.WithLabelValues(client.Url(), version).Set(0)
+		stateMu.Unlock()
 		return
 	}
-	// Persist the running version the first time
-	if _, ok := versions[client.Url()]; !ok {
-		versions[client.Url()] = status.Version
-	}
 
-	// Check if the adguard version has changed
-	if versions[client.Url()] != status.Version {
-		metrics.Running.Reset()
+	stateMu.Lock()
+	previousVersion := versions[client.Url()]
+	if previousVersion != "" && previousVersion != status.Version {
+		metrics.Running.DeleteLabelValues(client.Url(), previousVersion)
 	}
-
+	versions[client.Url()] = status.Version
 	metrics.Running.WithLabelValues(client.Url(), status.Version).Set(float64(status.Running.Int()))
+	stateMu.Unlock()
+
 	metrics.ProtectionEnabled.WithLabelValues(client.Url()).
 		Set(float64(status.ProtectionEnabled.Int()))
 }

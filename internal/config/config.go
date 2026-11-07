@@ -3,6 +3,9 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -45,6 +48,16 @@ func FromEnv() (*Global, error) {
 	}
 	if len(serv.BindAddr) == 0 {
 		serv.BindAddr = ":9618"
+	}
+
+	if val, ok := os.LookupEnv("ADGUARD_PASSWORDS_FILE"); ok {
+		passwords, err := os.ReadFile(val)
+		if err != nil {
+			return nil, fmt.Errorf("read passwords file: %w", err)
+		}
+		passwordValues := strings.TrimSuffix(string(passwords), "\n")
+		passwordValues = strings.TrimSuffix(passwordValues, "\r")
+		env.Passwords = strings.Split(passwordValues, ",")
 	}
 
 	if err := env.Validate(); err != nil {

@@ -1,0 +1,14 @@
+[
+  {
+    "known": {
+      "ids": ["192.0.2.10", "laptop-id"],
+      "name": "laptop"
+    }
+  },
+  {
+    "known": {
+      "ids": ["2001:db8::10"],
+      "name": "phone"
+    }
+  }
+]

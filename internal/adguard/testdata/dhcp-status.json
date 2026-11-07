@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "leases": [
+    {
+      "mac": "00:11:22:33:44:55",
+      "ip": "192.0.2.10",
+      "hostname": "laptop",
+      "expires": "2026-11-08T12:00:00Z"
+    }
+  ],
+  "static_leases": [
+    {
+      "mac": "aa:bb:cc:dd:ee:ff",
+      "ip": "192.0.2.20",
+      "hostname": "printer"
+    }
+  ]
+}

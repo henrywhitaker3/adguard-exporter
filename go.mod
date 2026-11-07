@@ -5,7 +5,7 @@ go 1.27.3
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-prometheus v0.0.1
-	github.com/labstack/echo/v5 v5.0.4
+	github.com/labstack/echo/v5 v5.4.4
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/sethvargo/go-envconfig/v2 v2.0.0
@@ -19,6 +19,6 @@ require (
 	github.com/prometheus/common v0.72.0 // indirect
 	github.com/prometheus/procfs v0.22.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/time v0.14.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )

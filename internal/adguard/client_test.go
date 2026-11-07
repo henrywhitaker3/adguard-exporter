@@ -2,6 +2,7 @@ package adguard
 
 import (
 	"context"
+	"encoding/pem"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -53,6 +54,31 @@ func TestGetStatusWithoutCredentialsDoesNotSendAuthorization(t *testing.T) {
 	}))
 	t.Cleanup(server.Close)
 	client := NewClient(config.Config{Url: server.URL})
+
+	status, err := client.GetStatus(context.Background())
+
+	require.NoError(t, err)
+	assert.Equal(t, "v0.107.80", status.Version)
+}
+
+func TestGetStatusTrustsCACertificateFromFile(t *testing.T) {
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte(`{"protection_enabled":true,"version":"v0.107.80","running":true}`))
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+
+	caCertificate := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw})
+	caCertificateFile := filepath.Join(t.TempDir(), "adguard-ca.crt")
+	require.NoError(t, os.WriteFile(caCertificateFile, caCertificate, 0o600))
+	t.Setenv("ADGUARD_SERVERS", server.URL)
+	t.Setenv("ADGUARD_USERNAMES", "")
+	t.Setenv("ADGUARD_PASSWORDS", "")
+	t.Setenv("ADGUARD_CA_CERT_FILE", caCertificateFile)
+
+	configuration, err := config.FromEnv()
+	require.NoError(t, err)
+	client := NewClient(configuration.Configs[0])
 
 	status, err := client.GetStatus(context.Background())
 

@@ -24,15 +24,17 @@ type Server struct {
 }
 
 type Config struct {
-	Url      string
-	Username string
-	Password string
+	Url        string
+	Username   string
+	Password   string
+	CACertFile string
 }
 
 type EnvConfig struct {
-	Urls      []string `env:"ADGUARD_SERVERS"`
-	Usernames []string `env:"ADGUARD_USERNAMES"`
-	Passwords []string `env:"ADGUARD_PASSWORDS"`
+	Urls       []string `env:"ADGUARD_SERVERS"`
+	Usernames  []string `env:"ADGUARD_USERNAMES"`
+	Passwords  []string `env:"ADGUARD_PASSWORDS"`
+	CACertFile string   `env:"ADGUARD_CA_CERT_FILE"`
 }
 
 func FromEnv() (*Global, error) {
@@ -66,7 +68,7 @@ func FromEnv() (*Global, error) {
 
 	configs := []Config{}
 	for i := range env.Urls {
-		configs = append(configs, buildConfig(i, env.Urls, env.Usernames, env.Passwords))
+		configs = append(configs, buildConfig(i, env.Urls, env.Usernames, env.Passwords, env.CACertFile))
 	}
 
 	return &Global{
@@ -75,9 +77,10 @@ func FromEnv() (*Global, error) {
 	}, nil
 }
 
-func buildConfig(i int, urls, usernames, password []string) Config {
+func buildConfig(i int, urls, usernames, password []string, caCertFile string) Config {
 	conf := Config{
-		Url: urls[i],
+		Url:        urls[i],
+		CACertFile: caCertFile,
 	}
 	if i < len(usernames) {
 		conf.Username = usernames[i]

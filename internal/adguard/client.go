@@ -3,6 +3,8 @@ package adguard
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"slices"
 	"strconv"
 	"time"
@@ -21,18 +24,26 @@ import (
 const adGuardRequestTimeout = 15 * time.Second
 
 type Client struct {
-	conf       config.Config
-	httpClient *http.Client
+	conf                config.Config
+	httpClient          *http.Client
+	initializationError error
 }
 
 func NewClient(conf config.Config) *Client {
+	httpClient, err := newHTTPClient(conf.CACertFile)
+
 	return &Client{
-		conf:       conf,
-		httpClient: &http.Client{Timeout: adGuardRequestTimeout},
+		conf:                conf,
+		httpClient:          httpClient,
+		initializationError: err,
 	}
 }
 
 func (c *Client) do(ctx context.Context, method string, path string, out any) error {
+	if c.initializationError != nil {
+		return c.initializationError
+	}
+
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -65,6 +76,10 @@ func (c *Client) do(ctx context.Context, method string, path string, out any) er
 }
 
 func (c *Client) doPost(ctx context.Context, path string, body any, out any) error {
+	if c.initializationError != nil {
+		return c.initializationError
+	}
+
 	url, err := url.Parse(fmt.Sprintf("%s%s", c.conf.Url, path))
 	if err != nil {
 		return err
@@ -112,6 +127,32 @@ func (c *Client) setAuthorization(header http.Header) {
 	}
 	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", c.conf.Username, c.conf.Password)))
 	header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
+}
+
+func newHTTPClient(caCertFile string) (*http.Client, error) {
+	client := &http.Client{Timeout: adGuardRequestTimeout}
+	if caCertFile == "" {
+		return client, nil
+	}
+
+	certificate, err := os.ReadFile(caCertFile)
+	if err != nil {
+		return nil, fmt.Errorf("read CA certificate file: %w", err)
+	}
+
+	roots, err := x509.SystemCertPool()
+	if err != nil || roots == nil {
+		roots = x509.NewCertPool()
+	}
+	if !roots.AppendCertsFromPEM(certificate) {
+		return nil, fmt.Errorf("parse CA certificate file")
+	}
+
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSClientConfig = &tls.Config{RootCAs: roots}
+	client.Transport = transport
+
+	return client, nil
 }
 
 func (c *Client) GetStats(ctx context.Context) (*Stats, error) {

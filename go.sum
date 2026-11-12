@@ -12,8 +12,8 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/labstack/echo-prometheus v0.0.1 h1:wofgid4PiNJ3kvxAJsuMAaCD/U6n/fvL8WH8BKq7IY8=
 github.com/labstack/echo-prometheus v0.0.1/go.mod h1:UAeQwHjvCT2MJGyP3mXyp8iVH14oC+Dyl2H6+pOIapQ=
-github.com/labstack/echo/v5 v5.4.4 h1:Nag9Mee0M9sOcKjProYuDNiw60QisysgfbIgz5US5Cw=
-github.com/labstack/echo/v5 v5.4.4/go.mod h1:4iEGNQiPPZnkfYpNR/L6fINd3NLiGWUD5+eBotFALas=
+github.com/labstack/echo/v5 v5.4.5 h1:lEPtXOQXgDcJNgrFy85WU2xBPZ/m9R2R+pc4eAxymjA=
+github.com/labstack/echo/v5 v5.4.5/go.mod h1:4iEGNQiPPZnkfYpNR/L6fINd3NLiGWUD5+eBotFALas=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=

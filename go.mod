@@ -5,7 +5,7 @@ go 1.27.4
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-prometheus v0.0.1
-	github.com/labstack/echo/v5 v5.4.4
+	github.com/labstack/echo/v5 v5.4.5
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/sethvargo/go-envconfig/v2 v2.0.0
